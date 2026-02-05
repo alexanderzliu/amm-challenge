@@ -123,9 +123,14 @@ impl SimulationEngine {
         // Track cumulative volumes
         let mut arb_volume_y: HashMap<String, f64> = HashMap::new();
         let mut retail_volume_y: HashMap<String, f64> = HashMap::new();
+        // Track cumulative fees for averaging
+        let mut cumulative_bid_fees: HashMap<String, f64> = HashMap::new();
+        let mut cumulative_ask_fees: HashMap<String, f64> = HashMap::new();
         for name in &names {
             arb_volume_y.insert(name.clone(), 0.0);
             retail_volume_y.insert(name.clone(), 0.0);
+            cumulative_bid_fees.insert(name.clone(), 0.0);
+            cumulative_ask_fees.insert(name.clone(), 0.0);
         }
 
         for t in 0..self.config.n_steps {
@@ -156,7 +161,7 @@ impl SimulationEngine {
                 *entry += trade_markout;
             }
 
-            // 4. Capture step result
+            // 4. Capture step result and accumulate fees
             let step = capture_step(
                 t,
                 fair_price,
@@ -165,12 +170,28 @@ impl SimulationEngine {
                 &initial_reserves,
                 initial_fair_price,
             );
+            // Accumulate fees for averaging
+            for name in &names {
+                if let Some((bid_fee, ask_fee)) = step.fees.get(name) {
+                    *cumulative_bid_fees.get_mut(name).unwrap() += bid_fee;
+                    *cumulative_ask_fees.get_mut(name).unwrap() += ask_fee;
+                }
+            }
             steps.push(step);
         }
 
         // Calculate final PnL (reserves + accumulated fees)
         let final_fair_price = price_process.current_price();
         let mut pnl = HashMap::new();
+
+        // Calculate average fees
+        let n_steps = self.config.n_steps as f64;
+        let mut average_fees: HashMap<String, (f64, f64)> = HashMap::new();
+        for name in &names {
+            let avg_bid = cumulative_bid_fees.get(name).unwrap() / n_steps;
+            let avg_ask = cumulative_ask_fees.get(name).unwrap() / n_steps;
+            average_fees.insert(name.clone(), (avg_bid, avg_ask));
+        }
 
         for (amm, name) in amms.iter().zip(names.iter()) {
             let (init_x, init_y) = initial_reserves.get(name).unwrap();
@@ -193,6 +214,7 @@ impl SimulationEngine {
             steps,
             arb_volume_y,
             retail_volume_y,
+            average_fees,
         })
     }
 }

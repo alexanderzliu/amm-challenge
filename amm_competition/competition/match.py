@@ -47,6 +47,7 @@ class LightweightSimResult:
     steps: list[LightweightStepResult]
     arb_volume_y: dict[str, float]
     retail_volume_y: dict[str, float]
+    average_fees: dict[str, tuple[float, float]]
 
 
 @dataclass
@@ -212,6 +213,7 @@ class MatchRunner:
                     steps=steps,
                     arb_volume_y=rust_result.arb_volume_y,
                     retail_volume_y=rust_result.retail_volume_y,
+                    average_fees=rust_result.average_fees,
                 )
                 simulation_results.append(sim_result)
 

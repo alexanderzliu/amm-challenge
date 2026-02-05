@@ -77,6 +77,10 @@ pub struct LightweightSimResult {
     /// Total retail volume (in Y) by strategy name
     #[pyo3(get)]
     pub retail_volume_y: HashMap<String, f64>,
+
+    /// Average fees (bid, ask) by strategy name over the simulation
+    #[pyo3(get)]
+    pub average_fees: HashMap<String, (f64, f64)>,
 }
 
 #[pymethods]

@@ -24,7 +24,7 @@ contract StrategyTest is Test {
         assertEq(askFee, 30e14, "Ask fee should be 30 bps");
     }
 
-    function test_VanillaOnTrade() public {
+    function test_VanillaAfterSwap() public {
         TradeInfo memory trade = TradeInfo({
             isBuy: true,
             amountX: 1e18,

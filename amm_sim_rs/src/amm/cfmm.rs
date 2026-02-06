@@ -65,7 +65,7 @@ impl CFMM {
             strategy,
             reserve_x,
             reserve_y,
-            current_fees: FeeQuote::symmetric(Wad::from_bps(25)),
+            current_fees: FeeQuote::symmetric(Wad::from_bps(30)),
             initialized: false,
             accumulated_fees_x: 0.0,
             accumulated_fees_y: 0.0,

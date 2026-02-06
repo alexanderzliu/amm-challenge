@@ -44,19 +44,19 @@ class TestLoadVanillaStrategy:
         assert isinstance(strategy, EVMStrategyAdapter)
 
     def test_strategy_name_correct(self):
-        """Verify getName returns 'Vanilla_25bps'."""
+        """Verify getName returns 'Vanilla_30bps'."""
         strategy = load_vanilla_strategy()
-        assert strategy.get_name() == "Vanilla_25bps"
+        assert strategy.get_name() == "Vanilla_30bps"
 
     def test_strategy_fees_correct(self):
-        """Verify initialize returns 25 bps fees."""
+        """Verify initialize returns 30 bps fees."""
         strategy = load_vanilla_strategy()
         fees = strategy.initialize(Decimal("100"), Decimal("10000"))
-        assert fees.bid_fee == Decimal("0.0025")
-        assert fees.ask_fee == Decimal("0.0025")
+        assert fees.bid_fee == Decimal("0.003")
+        assert fees.ask_fee == Decimal("0.003")
 
     def test_strategy_on_trade_returns_same_fees(self):
-        """Verify onTrade returns same 25 bps fees."""
+        """Verify onTrade returns same 30 bps fees."""
         strategy = load_vanilla_strategy()
         strategy.initialize(Decimal("100"), Decimal("10000"))
 
@@ -70,8 +70,8 @@ class TestLoadVanillaStrategy:
         )
 
         fees = strategy.on_trade(trade)
-        assert fees.bid_fee == Decimal("0.0025")
-        assert fees.ask_fee == Decimal("0.0025")
+        assert fees.bid_fee == Decimal("0.003")
+        assert fees.ask_fee == Decimal("0.003")
 
     def test_creates_fresh_instances(self):
         """Verify each call creates a new adapter instance."""
@@ -88,4 +88,4 @@ class TestLoadVanillaStrategy:
         strategy.reset()
         # Can reinitialize after reset
         fees = strategy.initialize(Decimal("200"), Decimal("20000"))
-        assert fees.bid_fee == Decimal("0.0025")
+        assert fees.bid_fee == Decimal("0.003")

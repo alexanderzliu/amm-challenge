@@ -16,7 +16,7 @@ Each simulation runs 10,000 steps. At each step:
 2. **Arbitrageurs trade** — They push each AMM's spot price toward `p`, extracting profit
 3. **Retail orders arrive** — Random buy/sell orders get routed optimally across AMMs
 
-Your strategy competes against a **normalizer AMM** running fixed 25 bps fees. Both AMMs start with identical reserves (100 X, 10,000 Y at price 100).
+Your strategy competes against a **normalizer AMM** running fixed 30 bps fees. Both AMMs start with identical reserves (100 X, 10,000 Y at price 100).
 
 ### Price Process
 
@@ -83,9 +83,9 @@ Good strategies maximize retail edge while minimizing arb losses.
 
 ## Why the Normalizer?
 
-Without competition, setting 10% fees would appear profitable—you'd capture huge spreads on the few trades that still execute. The normalizer prevents this: if your fees are too high, retail routes to the 25 bps AMM and you get nothing.
+Without competition, setting 10% fees would appear profitable—you'd capture huge spreads on the few trades that still execute. The normalizer prevents this: if your fees are too high, retail routes to the 30 bps AMM and you get nothing.
 
-The normalizer also means there's no "free lunch"—you can't beat 25 bps just by setting 24 bps. The optimal fee depends on market conditions.
+The normalizer also means there's no "free lunch"—you can't beat 30 bps just by setting 29 bps. The optimal fee depends on market conditions.
 
 ## Writing a Strategy
 
@@ -115,7 +115,7 @@ The core mechanic: **you set a buy fee and a sell fee, and after every trade you
 | `timestamp` | Step number |
 | `reserveX`, `reserveY` | Post-trade reserves |
 
-Return fees in WAD: `25 * BPS` = 25 basis points. Max fee is 10%.
+Return fees in WAD: `30 * BPS` = 30 basis points. Max fee is 10%.
 
 You get 32 storage slots (`slots[0..31]`) and helpers like `wmul`, `wdiv`, `sqrt`.
 
@@ -172,4 +172,4 @@ amm-match run my_strategy.sol --simulations 10
 amm-match validate my_strategy.sol
 ```
 
-Output is your average edge across simulations. The 25 bps normalizer typically scores around 250-350 edge depending on market conditions.
+Output is your average edge across simulations. The 30 bps normalizer typically scores around 250-350 edge depending on market conditions.

@@ -98,8 +98,8 @@ class EVMStrategyExecutor:
 
     def _decimal_to_wad(self, value: Decimal) -> int:
         """Convert a Decimal fee to WAD representation."""
-        # Fees are expressed as decimals (e.g., 0.0025 = 25 bps)
-        # WAD representation: 0.0025 * 1e18 = 25e14
+        # Fees are expressed as decimals (e.g., 0.003 = 30 bps)
+        # WAD representation: 0.003 * 1e18 = 30e14
         return int(value * self.WAD)
 
     def _wad_to_decimal(self, value: int) -> Decimal:

@@ -88,10 +88,10 @@ class TestAMM:
 
     def test_quote_with_fees(self, amm):
         """Test that fees are applied correctly."""
-        # 25bps = 0.0025
+        # 30bps = 0.003
         quote = amm.get_quote_buy_x(Decimal("10"))
         assert quote is not None
-        assert quote.fee_rate == Decimal("0.0025")
+        assert quote.fee_rate == Decimal("0.003")
         assert quote.fee_amount > 0
         # Net output should be less than gross
         gross = Decimal("10000") - Decimal("1000000") / Decimal("110")
@@ -170,8 +170,8 @@ class TestVanillaStrategy:
     def test_fixed_fees(self, vanilla_strategy):
         fees = vanilla_strategy.initialize(Decimal("100"), Decimal("10000"))
 
-        assert fees.bid_fee == Decimal("0.0025")
-        assert fees.ask_fee == Decimal("0.0025")
+        assert fees.bid_fee == Decimal("0.003")
+        assert fees.ask_fee == Decimal("0.003")
 
     def test_fees_unchanged_on_trade(self, vanilla_strategy):
         vanilla_strategy.initialize(Decimal("100"), Decimal("10000"))
@@ -186,8 +186,8 @@ class TestVanillaStrategy:
         )
 
         fees = vanilla_strategy.on_trade(trade)
-        assert fees.bid_fee == Decimal("0.0025")
-        assert fees.ask_fee == Decimal("0.0025")
+        assert fees.bid_fee == Decimal("0.003")
+        assert fees.ask_fee == Decimal("0.003")
 
     def test_name(self, vanilla_strategy):
-        assert vanilla_strategy.get_name() == "Vanilla_25bps"
+        assert vanilla_strategy.get_name() == "Vanilla_30bps"

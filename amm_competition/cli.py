@@ -59,7 +59,7 @@ def run_match_command(args: argparse.Namespace) -> int:
     strategy_name = user_strategy.get_name()
     print(f"Strategy: {strategy_name}")
 
-    # Load default 25bps strategy (used as the other AMM in simulation)
+    # Load default 30bps strategy (used as the other AMM in simulation)
     default_strategy = load_vanilla_strategy()
 
     # Configure simulation

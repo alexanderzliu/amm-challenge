@@ -110,7 +110,7 @@ class TestArbitrageur:
         """No arbitrage when AMM price equals fair price."""
         arb = Arbitrageur()
         result = arb.find_arb_opportunity(amm, fair_price=Decimal("100"))
-        # With 25bps fees, small price differences don't create arb
+        # With 30bps fees, small price differences don't create arb
         # At exact fair price, no arb
         assert result is None
 
@@ -177,7 +177,7 @@ class TestOrderRouter:
         splits = router.compute_optimal_split_buy(amms, Decimal("1000"))
         assert len(splits) == 2
 
-        # Both AMMs have same 25bps fee, so split should be roughly equal
+        # Both AMMs have same 30bps fee, so split should be roughly equal
         assert all(s[1] > 0 for s in splits)
 
     def test_routes_sell_to_better_price(self, amms):
@@ -187,5 +187,5 @@ class TestOrderRouter:
         splits = router.compute_optimal_split_sell(amms, Decimal("10"))
         assert len(splits) == 2
 
-        # Both AMMs have same 25bps fee, so split should be roughly equal
+        # Both AMMs have same 30bps fee, so split should be roughly equal
         assert all(s[1] > 0 for s in splits)

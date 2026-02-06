@@ -19,9 +19,9 @@ contract StrategyTest is Test {
 
         (uint256 bidFee, uint256 askFee) = vanilla.initialize(initialX, initialY);
 
-        // 25 bps = 25 * 1e14 = 25e14
-        assertEq(bidFee, 25e14, "Bid fee should be 25 bps");
-        assertEq(askFee, 25e14, "Ask fee should be 25 bps");
+        // 30 bps = 30 * 1e14 = 30e14
+        assertEq(bidFee, 30e14, "Bid fee should be 30 bps");
+        assertEq(askFee, 30e14, "Ask fee should be 30 bps");
     }
 
     function test_VanillaOnTrade() public {
@@ -36,13 +36,13 @@ contract StrategyTest is Test {
 
         (uint256 bidFee, uint256 askFee) = vanilla.onTrade(trade);
 
-        assertEq(bidFee, 25e14, "Bid fee should be 25 bps");
-        assertEq(askFee, 25e14, "Ask fee should be 25 bps");
+        assertEq(bidFee, 30e14, "Bid fee should be 30 bps");
+        assertEq(askFee, 30e14, "Ask fee should be 30 bps");
     }
 
     function test_VanillaGetName() public view {
         string memory name = vanilla.getName();
-        assertEq(name, "Vanilla_25bps");
+        assertEq(name, "Vanilla_30bps");
     }
 
     function test_Constants() public view {

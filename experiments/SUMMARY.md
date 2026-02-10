@@ -1,10 +1,11 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 021 -->
+<!-- Last synced with experiment: 022 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
 - **Mechanism**: fee = max(24bps + tradeRatio*7/8 + tradeRatio²*27, prevFee*6/7)
 - **File**: my_strategy.sol
+- **Target**: 525+ (known to be achievable)
 
 ## Established Facts
 1. **Optimal fixed fee is ~75-80 bps** — but dynamic spikes shift this (exp 004)
@@ -26,7 +27,14 @@
 17. **Spike stacking hurts** — max(fresh, decayed) beats additive/dampened stacking (exp 020)
 18. **k-invariant growth is too slow** to provide useful intra-simulation signal (exp 021)
 19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018)
-20. **Strategy is converged** — 8 distinct creative approaches tested, none improve beyond noise (exp 014-021)
+20. **Reserve deviation signals add nothing** — as base bonus or decay modifier, zero effect (exp 022)
+21. **Spike+decay paradigm is exhausted** — 22 experiments, 8+ variants on the theme, all converge to ~482 (exp 014-022)
+
+## Critical Architecture Insights (exp 022)
+- **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
+- **Fee separation**: Fees go to a separate bucket, NOT reserves. Both AMMs maintain ~identical reserves throughout. Retail routing depends on fee*reserves, but reserve difference is negligible.
+- **Routing sensitivity**: At 24 vs 30 bps, we capture ~57% of retail. At 500 bps spike, we capture 0% retail. Weighted average = 39.5%.
+- **The fundamental tension**: Spike protects against arb (quadratic gain) but destroys retail capture (linear loss). Net positive, but the mechanism caps at ~482.
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -74,12 +82,23 @@
 - Dampened spike stacking — worse with more stacking (exp 020)
 - Additive spike stacking — inflates fees, loses retail (exp 020)
 - K-invariant growth tracking — too slow-moving, zero effect (exp 021)
+- Reserve deviation base bonus — raises fees, loses retail (exp 022)
+- Reserve deviation adaptive decay — zero effect (exp 022)
+- Peak-adaptive decay — within noise (exp 022)
+- Trade-size EMA as dynamic floor — catastrophic fee inflation (exp 022)
+- Size-conditional decay rates — zero effect vs base clamp (exp 022)
+- Linear (additive) decay — keeps fee elevated too long (exp 022)
+- Shifting lin/quad balance (more quad, less lin) — worse (exp 022)
 
-## Next Experiments (Priority Order)
-1. **Oracle/external signal**: If any mechanism exists to infer fair price, it would be transformative
-2. **Radically different formula**: e.g., fee = f(reserveRatio deviation from initial), fee = f(cumulative trade imbalance)
-3. **Adaptive spike coefficients**: Slowly tune lin/quad coefficients based on cumulative performance
-4. **Multi-slot history**: Store last N trade sizes in slots, use statistical features (variance, trend)
+## Next Experiments — PARADIGM SHIFT NEEDED
+The spike+decay paradigm is exhausted at ~482. To reach 525+, we need categorically different approaches:
+
+1. **Exploit the timing structure**: Arb sees decayed fee, retail sees spike. Can we design a mechanism where arb pays MORE and retail pays LESS? e.g., counter-based "retail window" that drops fee for N trades after a spike.
+2. **Multi-trade history**: Use slots to store last 8-16 trade sizes. Compute running variance, detect regime changes. Different from single-trade EMA because it captures distribution shape.
+3. **Joint base+spike co-optimization**: The current base (24) was tuned with spike coefficients fixed. A grid search over ALL 4 params simultaneously (base, linear, quad, decay) might find a different optimum in the 4D landscape.
+4. **Completely different fee curve**: fee = a + b*log(1 + c*tradeRatio) or fee = a + b*(tradeRatio/(1+c*tradeRatio)). Saturating curves that spike quickly but cap gracefully.
+5. **Per-simulation sigma estimation**: Since sigma varies per sim (U[0.088%, 0.101%]), estimating it from cumulative reserve changes and adapting base fee could help.
+6. **Separate bid/ask with reserve-state conditioning**: Not directional prediction, but fee ∝ exposure. If reserveX is high (we hold lots of X), charge more to buy more X.
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge
@@ -88,3 +107,6 @@
 - Scoring: edge = profit using fair prices at trade time (retail=positive, arb=negative)
 - Retail volume share at current strategy: ~39.5% (vanilla gets ~60.5%)
 - Our arb volume: ~24k Y vs vanilla's ~52k Y (spikes protect well)
+- **Sim order per step**: GBM price → arb trades (both AMMs) → retail trades (routed)
+- **Fee timing**: afterSwap returns fee for NEXT trade, not current
+- **Fee accrual**: Separate bucket, does NOT increase reserves/k

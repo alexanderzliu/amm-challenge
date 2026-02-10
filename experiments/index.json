@@ -934,5 +934,64 @@
       "reserve-tracking",
       "rejected"
     ]
+  },
+  {
+    "id": 22,
+    "name": "SignalVariants",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Alternative signals (reserve deviation, trade-size EMA, peak-adaptive decay, size-conditional decay, linear decay, lin/quad rebalance, lower base) can break past 482 edge",
+    "variables_changed": [
+      "base_fee_formula",
+      "decay_structure",
+      "spike_shape",
+      "base_fee"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Reserve deviation as base fee bonus: 479.94 at 500 sims — raises base too much, loses retail",
+      "Reserve deviation for adaptive decay rate (6/7 vs 7/8): 482.16 at 500 sims — identical to baseline",
+      "Peak-adaptive decay (slow decay after high spikes): 482.43 at 500 sims — within noise",
+      "Trade-size EMA as dynamic floor: 393 at 100 sims — catastrophic, inflates base fee",
+      "Size-conditional decay (fast for retail, slow for arb): 482.17 at 100 sims — zero effect, threshold rarely matters vs base clamp",
+      "Linear decay (subtract 10bps/trade): 348 at 100 sims — keeps fee elevated too long, loses retail",
+      "More quadratic, less linear (lin=1/2, quad=35): 478 at 100 sims — worse balance than 7/8+27",
+      "Base=20 with same spike: 480 at 500 sims — confirms 24 is optimal base from exp 013",
+      "CRITICAL INSIGHT: Fee returned by afterSwap is for NEXT trade. Arb sees decayed fee, retail sees post-arb spike. This is structurally backwards for edge optimization.",
+      "CRITICAL INSIGHT: At 500bps spike, routing formula sends 0% retail to us. At 24bps base, ~57% of retail. Weighted average is 39.5%. The spike mechanism fundamentally trades retail volume for arb protection.",
+      "CRITICAL INSIGHT: Fees go to SEPARATE bucket, not reserves. Both AMMs have ~identical reserves. Retail routing depends on fee AND reserves, but reserve difference is negligible.",
+      "All 8 variants tested are incremental modifications to spike+decay paradigm. None break through. Need categorically different approach."
+    ],
+    "params": {
+      "variants_tested": [
+        "reserve_deviation_base_bonus",
+        "reserve_deviation_adaptive_decay",
+        "peak_adaptive_decay",
+        "trade_size_ema_floor",
+        "size_conditional_decay",
+        "linear_decay",
+        "high_quad_low_lin",
+        "base_20"
+      ],
+      "base_fee_bps": "20-24",
+      "n_variants": 8
+    },
+    "results": {
+      "edge": 482.43,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "signal-variants",
+      "reserve-deviation",
+      "adaptive-decay",
+      "ema-floor",
+      "linear-decay",
+      "rejected",
+      "paradigm-exhausted"
+    ]
   }
 ]

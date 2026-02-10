@@ -678,5 +678,49 @@
       "ratio-formula",
       "rejected"
     ]
+  },
+  {
+    "id": 16,
+    "name": "SpikeShapeVariants",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Alternative spike shapes (capped, piecewise linear, sqrt) may outperform continuous lin+quad",
+    "variables_changed": [
+      "spike_shape"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Spike caps hurt proportionally: cap100\u2192436, cap200\u2192460, cap300\u2192471, cap500\u2192480, cap1000\u2192485",
+      "Unbounded spikes are essential \u2014 large arb trades need maximal fee response",
+      "Piecewise linear (3 segments): 448-473 \u2014 worse than smooth lin+quad",
+      "Higher linear with cap (lin 3/2 cap 300): 453 \u2014 cap dominates and hurts",
+      "Sqrt-based spike: 89-367 \u2014 catastrophically over-reactive to small trades",
+      "Lin+quad provides the mathematically ideal convex curve shape for this problem"
+    ],
+    "params": {
+      "shapes_tested": [
+        "capped at 100-1000 bps",
+        "piecewise 3-segment",
+        "sqrt",
+        "high-linear+cap"
+      ],
+      "base_fee_bps": 30,
+      "n_sims_per_variant": 100
+    },
+    "results": {
+      "edge": 473.0,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "spike-shape",
+      "caps",
+      "piecewise",
+      "sqrt",
+      "rejected"
+    ]
   }
 ]

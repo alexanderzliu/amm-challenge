@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 015 -->
+<!-- Last synced with experiment: 016 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -9,7 +9,7 @@
 ## Established Facts
 1. **Optimal fixed fee is ~75-80 bps** — but dynamic spikes shift this (exp 004)
 2. **With strong spikes, optimal base drops to 24-30 bps** — spikes handle arb, low base captures retail (exp 010, 013)
-3. **Lin+quad spike > pure linear > pure quadratic > piecewise linear** — continuous curve best (exp 009, 013)
+3. **Lin+quad spike > pure linear > pure quadratic > piecewise linear > sqrt** — continuous curve best (exp 009, 016)
 4. **Instant rise + slow decay is optimal** — react instantly to threats, relax gradually (exp 011)
 5. No smoothing at all (instant both ways) is terrible — fee must persist across trades (exp 011)
 6. Arb protection (quadratic) far outweighs retail volume lost to vanilla at high fees
@@ -21,7 +21,7 @@
 12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
 13. **Seeds are deterministic** — same N seeds always give same result, so comparisons are precise (exp 013)
 14. **Cubic spike term always hurts** — over-penalizes large trades (exp 014)
-15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 013)
+15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 016)
 16. **Ratio formula doesn't matter** — Y-only, X-only, max, avg, geomean all equivalent for CPMM (exp 015) (exp 013)
 
 ## Evolution of Edge
@@ -55,8 +55,9 @@
 - Max X/Y ratio — no difference from Y-only (474)
 - Multiplicative spike on current fee — runaway fee inflation (155)
 - Cubic spike term — over-penalizes, always hurts (exp 014)
-- Spike caps (100-500 bps) — limiting spikes loses arb protection (exp 013)
-- Piecewise linear spike — worse than continuous lin+quad (exp 013)
+- Spike caps (100-1000 bps) — limiting spikes loses arb protection (exp 016)
+- Piecewise linear spike — worse than continuous lin+quad (exp 016)
+- Sqrt-based spike — catastrophically over-reactive (89-367 edge, exp 016)
 - Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 013)
 - Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 013)
 - Adaptive base fee (decaying floor) — never activates in practice (exp 013)

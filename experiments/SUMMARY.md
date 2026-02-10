@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 022 -->
+<!-- Last synced with experiment: 023 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -29,6 +29,9 @@
 19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018)
 20. **Reserve deviation signals add nothing** — as base bonus or decay modifier, zero effect (exp 022)
 21. **Spike+decay paradigm is exhausted** — 22 experiments, 8+ variants on the theme, all converge to ~482 (exp 014-022)
+22. **Base=24 is globally optimal** across ALL spike/decay combos. 4D grid search at 500 sims confirms. Higher bases always worse. (exp 023)
+23. **Smooth EMA fee fails** — fee must react instantly to arbs. Any smoothing loses arb protection (exp 023)
+24. **Floor above vanilla has zero effect** — fee rarely drops below 31 bps between arb events anyway (exp 023)
 
 ## Critical Architecture Insights (exp 022)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -89,16 +92,28 @@
 - Size-conditional decay rates — zero effect vs base clamp (exp 022)
 - Linear (additive) decay — keeps fee elevated too long (exp 022)
 - Shifting lin/quad balance (more quad, less lin) — worse (exp 022)
+- Higher base (28-40 bps) with any spike combination — always worse at 500 sims (exp 023)
+- Smooth EMA fee (α=1/4) — too slow for arb protection, 421 edge (exp 023)
+- Vol-proportional fee from trade variance EMA — corrupted signal, 413 edge (exp 023)
+- Floor above vanilla (31 bps min) — zero effect, fee rarely that low anyway (exp 023)
+- 4D grid search exhausted: base 24 is globally optimal across all spike/decay combos (exp 023)
+
+## Winner Analysis (Target: 525+)
+- **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)
+- **Avg Arb Volume**: 23.8K (similar to our ~24K)
+- **Avg Retail Volume**: 77.3K (vs our ~63K, 22% more)
+- Winner earns MORE per retail trade (36 vs 24 bps) while capturing MORE retail volume
+- Higher consistent fee preserves reserves (k) better → routing advantage
+- Simple base raise doesn't work — must achieve this through different mechanism
 
 ## Next Experiments — PARADIGM SHIFT NEEDED
-The spike+decay paradigm is exhausted at ~482. To reach 525+, we need categorically different approaches:
+The spike+decay paradigm AND higher-base approach are both exhausted at ~482. To reach 525+:
 
-1. **Exploit the timing structure**: Arb sees decayed fee, retail sees spike. Can we design a mechanism where arb pays MORE and retail pays LESS? e.g., counter-based "retail window" that drops fee for N trades after a spike.
-2. **Multi-trade history**: Use slots to store last 8-16 trade sizes. Compute running variance, detect regime changes. Different from single-trade EMA because it captures distribution shape.
-3. **Joint base+spike co-optimization**: The current base (24) was tuned with spike coefficients fixed. A grid search over ALL 4 params simultaneously (base, linear, quad, decay) might find a different optimum in the 4D landscape.
-4. **Completely different fee curve**: fee = a + b*log(1 + c*tradeRatio) or fee = a + b*(tradeRatio/(1+c*tradeRatio)). Saturating curves that spike quickly but cap gracefully.
-5. **Per-simulation sigma estimation**: Since sigma varies per sim (U[0.088%, 0.101%]), estimating it from cumulative reserve changes and adapting base fee could help.
-6. **Separate bid/ask with reserve-state conditioning**: Not directional prediction, but fee ∝ exposure. If reserveX is high (we hold lots of X), charge more to buy more X.
+1. **Fundamentally different fee function**: Not spike+decay but a continuous function of state. The winner likely doesn't use our spike-then-decay pattern at all. Could use fee = f(EMA of trade ratios) with no spike/decay separation.
+2. **Reserve-based fee**: fee ∝ sqrt(k_initial/k_current) — tracks reserve depletion directly. As reserves shrink from arb, fee rises to protect remaining reserves.
+3. **Exploit k-preservation feedback**: Higher consistent fee → better k → more retail from routing → more edge → self-reinforcing cycle. Need to find the mechanism that bootstraps this cycle.
+4. **Per-simulation sigma estimation**: σ varies per sim. Estimate from cumulative price drift and set fee = c*σ optimally per sim.
+5. **Nonlinear routing advantage**: Explore whether there's a sweet spot where fee = vanilla+ε captures disproportionately more retail due to reserve size advantage.
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge

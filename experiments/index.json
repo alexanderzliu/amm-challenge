@@ -993,5 +993,58 @@
       "rejected",
       "paradigm-exhausted"
     ]
+  },
+  {
+    "id": 23,
+    "name": "HighBaseExploration",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Winner has avg fee 36.1 bps with 77K retail and 23.8K arb. A higher base (28-40 bps) with retuned spikes could achieve this consistent fee profile.",
+    "variables_changed": [
+      "base_fee",
+      "spike_coefficients",
+      "decay_rate",
+      "fee_floor",
+      "fee_mechanism"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "4D grid search at 500 sims confirms base=24 is optimal: b24→482, b26→482, b28→481, b30→480, b33→480, b35→476, b38→480, b40→479",
+      "At base=30, lin+quad coefficients were re-optimized: best combo (3/4, 30) gives 479 at 500 sims — still below b24 baseline",
+      "At base=33, all spike combos are worse than base=30 and base=24",
+      "Fast decay (5/6) at base=35 gives only 474 — consistency doesn't help when fee is above vanilla",
+      "Floor at 31 bps (above vanilla): 481.76 at 500 sims — zero effect, fee rarely reaches 24 between arb events anyway",
+      "Smooth EMA fee (α=1/4): 421 — too slow to react to arbs, inadequate protection",
+      "Vol-proportional fee (sqrt of EMA variance): 413 — corrupted signal, same problem as exp 017",
+      "CRITICAL: Higher base ALWAYS hurts at 500 sims despite looking better at 100. The spike mechanism is doing ALL the useful work.",
+      "The winner's 36.1 avg fee and 77K retail is NOT achievable through higher base. Must use a fundamentally different mechanism.",
+      "Winner likely uses reserve-preservation advantage: consistent above-30bps fee preserves k better → larger reserves → more retail from routing formula. But direct base raise doesn't work because it also loses retail per-trade."
+    ],
+    "params": {
+      "base_sweep_500sims": "24→482, 26→482, 28→481, 30→480, 33→480, 35→476",
+      "spike_sweep_base30": "best: lin=7/8,q=25→480 | lin=3/4,q=30→479 | lin=1/1,q=20→479",
+      "spike_sweep_base33": "best: lin=3/4,q=30→484@100sims→~480@500sims",
+      "decay_sweep_base30": "4/5→483, 5/6→485, 6/7→486, 7/8→485, 8/9→485, 9/10→483 (all 100 sims)",
+      "floor_31bps": "481.76@500sims",
+      "ema_fee": "421@100sims",
+      "vol_proportional": "413@100sims"
+    },
+    "results": {
+      "edge": 482.17,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "high-base",
+      "grid-search",
+      "4d-optimization",
+      "fee-floor",
+      "ema-fee",
+      "vol-proportional",
+      "rejected"
+    ]
   }
 ]

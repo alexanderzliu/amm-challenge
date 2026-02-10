@@ -897,5 +897,42 @@
       "dampened",
       "rejected"
     ]
+  },
+  {
+    "id": 21,
+    "name": "KInvariantTracking",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Tracking k-invariant (reserveX * reserveY) growth can provide a performance signal to adapt base fee \u2014 lower base when doing well to attract more retail",
+    "variables_changed": [
+      "k_tracking",
+      "base_fee_formula"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Edge exactly 482.17 \u2014 identical to baseline, zero effect",
+      "k growth per trade is extremely small \u2014 adjustments are sub-1-bps",
+      "10 bps max adjustment over 10k steps means ~1 bps effective change",
+      "k-invariant is too slow-moving to provide useful intra-simulation signal",
+      "The information in k growth is already captured by the spike mechanism"
+    ],
+    "params": {
+      "k_growth_scaling": "1 bps base reduction per 0.1% k growth",
+      "max_adjustment_bps": 10,
+      "base_fee_bps": 24
+    },
+    "results": {
+      "edge": 482.17,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "k-invariant",
+      "reserve-tracking",
+      "rejected"
+    ]
   }
 ]

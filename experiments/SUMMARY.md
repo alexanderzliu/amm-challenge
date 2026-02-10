@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 020 -->
+<!-- Last synced with experiment: 021 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -24,7 +24,9 @@
 15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 016)
 16. **Ratio formula doesn't matter** — Y-only, X-only, max, avg, geomean all equivalent for CPMM (exp 015)
 17. **Spike stacking hurts** — max(fresh, decayed) beats additive/dampened stacking (exp 020)
-19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018) (exp 013)
+18. **k-invariant growth is too slow** to provide useful intra-simulation signal (exp 021)
+19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018)
+20. **Strategy is converged** — 8 distinct creative approaches tested, none improve beyond noise (exp 014-021)
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -62,21 +64,22 @@
 - Sqrt-based spike — catastrophically over-reactive (89-367 edge, exp 016)
 - Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 017)
 - Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 018)
+- Trade frequency EMA for regime detection — no value add (exp 018)
 - Early/late base fee switching — no improvement (exp 018)
 - Adaptive base fee (decaying floor) — never activates in practice (exp 019)
-- Trade frequency EMA for regime detection — no value add (exp 018)
 - Two-tier decay (plateau + fast drop) — no improvement (exp 019)
 - Sub-base undercutting floors — unreachable, no effect (exp 019)
 - Direction-dependent spike coefficients — no improvement (exp 015)
 - Geometric mean / max / avg of X,Y ratios — all same as Y-only (exp 015)
 - Dampened spike stacking — worse with more stacking (exp 020)
 - Additive spike stacking — inflates fees, loses retail (exp 020)
+- K-invariant growth tracking — too slow-moving, zero effect (exp 021)
 
 ## Next Experiments (Priority Order)
-1. **New information sources**: The strategy currently only uses trade.amountY, trade.reserveY, and prevFee. Explore what truly novel information can be extracted from the 6 TradeInfo fields.
-2. **Ensemble/switching**: Different strategies for early vs late simulation (warmup then optimize)
-3. **Non-linear decay**: Exponential/polynomial decay curves instead of constant multiplicative
-4. **Fee-dependent spike scaling**: Scale spike inversely with current fee (spike less when already high)
+1. **Oracle/external signal**: If any mechanism exists to infer fair price, it would be transformative
+2. **Radically different formula**: e.g., fee = f(reserveRatio deviation from initial), fee = f(cumulative trade imbalance)
+3. **Adaptive spike coefficients**: Slowly tune lin/quad coefficients based on cumulative performance
+4. **Multi-slot history**: Store last N trade sizes in slots, use statistical features (variance, trend)
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge

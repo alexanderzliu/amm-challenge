@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 017 -->
+<!-- Last synced with experiment: 018 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -17,12 +17,13 @@
 8. Arb is independent per AMM — wider no-arb band directly reduces losses
 9. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
 10. Price-change-based spike is corrupted by fee impact — trade size is the right signal (exp 012, 017)
-11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 013)
+11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 018)
 12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
 13. **Seeds are deterministic** — same N seeds always give same result, so comparisons are precise (exp 013)
 14. **Cubic spike term always hurts** — over-penalizes large trades (exp 014)
 15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 016)
-16. **Ratio formula doesn't matter** — Y-only, X-only, max, avg, geomean all equivalent for CPMM (exp 015) (exp 013)
+16. **Ratio formula doesn't matter** — Y-only, X-only, max, avg, geomean all equivalent for CPMM (exp 015)
+19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018) (exp 013)
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -59,9 +60,10 @@
 - Piecewise linear spike — worse than continuous lin+quad (exp 016)
 - Sqrt-based spike — catastrophically over-reactive (89-367 edge, exp 016)
 - Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 017)
-- Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 013)
+- Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 018)
+- Early/late base fee switching — no improvement (exp 018)
 - Adaptive base fee (decaying floor) — never activates in practice (exp 013)
-- Trade frequency EMA for regime detection — no value add (exp 013)
+- Trade frequency EMA for regime detection — no value add (exp 018)
 - Two-tier decay (plateau + fast drop) — no improvement (exp 013)
 - Direction-dependent spike coefficients — no improvement (exp 015)
 - Geometric mean / max / avg of X,Y ratios — all same as Y-only (exp 015)

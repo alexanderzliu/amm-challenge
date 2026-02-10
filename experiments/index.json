@@ -761,5 +761,52 @@
       "catastrophic",
       "rejected"
     ]
+  },
+  {
+    "id": 18,
+    "name": "TimestampFeatures",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Using timestamp to detect trade gaps, trade frequency, and early/late regime switching can improve fee dynamics",
+    "variables_changed": [
+      "decay_method",
+      "trade_frequency",
+      "time_switching"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Gap-aware decay (per-step not per-trade): 463 \u2014 significantly worse, too aggressive",
+      "Trade frequency EMA (1/gap as freq signal, adjust base): 482 \u2014 no improvement",
+      "Early/late base switching (e.g., base=30 first 100 steps then 24): 482 \u2014 no improvement",
+      "All early/late combinations within noise: e30/l24@100\u2192482.15, e20/l24@500\u2192482.07",
+      "Timestamp provides no actionable information beyond what trade-size spike already captures"
+    ],
+    "params": {
+      "gap_decay": "fee * 6/7 per step gap (capped at 20)",
+      "freq_ema_alpha": "1/8",
+      "early_late_configs": [
+        "30/24@100",
+        "30/24@500",
+        "30/24@1000",
+        "20/24@500",
+        "24/20@5000",
+        "15/24@200"
+      ]
+    },
+    "results": {
+      "edge": 482.15,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "timestamp",
+      "gap-decay",
+      "trade-frequency",
+      "time-switching",
+      "rejected"
+    ]
   }
 ]

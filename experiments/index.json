@@ -279,6 +279,107 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "high-base", "continuous", "current-best"]
+    "tags": ["spike-only", "high-base", "continuous"]
+  },
+  {
+    "id": 9,
+    "name": "LinQuadSpike",
+    "parent_id": 8,
+    "date": "2026-02-10",
+    "hypothesis": "Hybrid linear+quadratic spike penalizes large trades superlinearly while still reacting to small trades — better than pure linear or pure quadratic",
+    "variables_changed": ["spike_formula", "linear_coeff", "quad_coeff"],
+    "verdict": "confirmed",
+    "insights": [
+      "Lin+quad (445) beats pure linear (434) and pure quadratic (427)",
+      "Pure quadratic underreacts to small trades; pure linear underreacts to large trades",
+      "Optimal coefficients: linear=0.75, quad=25 (q sweep: 15→441, 25→442, 50→438, 100→392)",
+      "Linear coeff sweep: 0.5→443, 0.75→445, 1.0→442 — moderate linear + small quad is ideal"
+    ],
+    "params": {
+      "base_fee_bps": 75,
+      "spike_formula": "tradeRatio * 0.75 + tradeRatio^2 * 25",
+      "linear_coeff": 0.75,
+      "quad_coeff": 25,
+      "rise_speed": "2/3",
+      "decay_speed": "1/3",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 444.60,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "lin-quad", "continuous"]
+  },
+  {
+    "id": 10,
+    "name": "LinQuad-LowBase",
+    "parent_id": 9,
+    "date": "2026-02-10",
+    "hypothesis": "With strong lin+quad spikes handling arb protection, the optimal base fee drops below 75 bps — spikes substitute for high fixed base",
+    "variables_changed": ["base_fee"],
+    "verdict": "confirmed",
+    "insights": [
+      "Optimal base drops to 30-40 bps with lin+quad spikes (vs 75-80 for pure fixed)",
+      "Base sweep: 20→456, 30→464, 35→464, 40→463, 50→461, 60→456, 75→445",
+      "Spikes handle arb protection dynamically, so base can be low to capture more retail",
+      "This reverses the exp 004 finding: with good-enough spikes, low base IS optimal",
+      "Flat plateau at 30-40 bps — not very sensitive in that range"
+    ],
+    "params": {
+      "base_fee_bps": 30,
+      "spike_formula": "tradeRatio * 0.75 + tradeRatio^2 * 25",
+      "linear_coeff": 0.75,
+      "quad_coeff": 25,
+      "rise_speed": "2/3",
+      "decay_speed": "1/3",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 463.82,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "lin-quad", "low-base", "base-sweep"]
+  },
+  {
+    "id": 11,
+    "name": "LinQuad-InstantRise",
+    "parent_id": 10,
+    "date": "2026-02-10",
+    "hypothesis": "Instant fee rise (no smoothing upward) + slow decay maximizes arb protection — react instantly to threats, relax gradually",
+    "variables_changed": ["rise_speed", "decay_speed"],
+    "verdict": "confirmed",
+    "insights": [
+      "Instant rise (479) beats 9/10 rise (477) beats 3/4 rise (470) beats 2/3 rise (464)",
+      "Decay sweep with instant rise: 1/3→464, 1/4→479, 1/5→479, 1/6→479, 1/10→466",
+      "Optimal decay is 1/4 to 1/6 — not very sensitive in this range",
+      "No smoothing at all (instant both ways) is terrible (396) — memory/persistence matters",
+      "Asymmetric smoothing is key: instant up, slow down"
+    ],
+    "params": {
+      "base_fee_bps": 30,
+      "spike_formula": "tradeRatio * 0.75 + tradeRatio^2 * 25",
+      "linear_coeff": 0.75,
+      "quad_coeff": 25,
+      "rise_speed": "instant",
+      "decay_speed": "1/5",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 479.46,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "lin-quad", "low-base", "instant-rise", "current-best"]
   }
 ]

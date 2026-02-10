@@ -4,10 +4,10 @@ pragma solidity ^0.8.24;
 import {AMMStrategyBase} from "./AMMStrategyBase.sol";
 import {IAMMStrategy, TradeInfo} from "./IAMMStrategy.sol";
 
-/// @title Continuous Spike Strategy
-/// @notice 75 bps base with continuous spike proportional to trade size.
-///         spike = tradeRatio * 1.25 (so 1% trade → 125 bps spike, 2% → 250 bps).
-///         Fast decay (1/3 of gap per trade) keeps fees responsive.
+/// @title LinQuad Spike Strategy
+/// @notice Base 75 bps + hybrid linear+quadratic spike from trade size.
+///         spike = tradeRatio * 0.75 + tradeRatio² * 25
+///         Rise 2/3, decay 1/3.
 contract Strategy is AMMStrategyBase {
     // slots[0] = current fee (WAD)
 
@@ -25,11 +25,10 @@ contract Strategy is AMMStrategyBase {
         uint256 fee = slots[0];
         uint256 baseFee = 75 * BPS;
 
-        // Continuous spike proportional to trade size
-        // tradeRatio in WAD: 1% = 1e16, we want 1% → ~125 bps = 125e14
-        // spike = tradeRatio * 5/4
         uint256 tradeRatio = wdiv(trade.amountY, trade.reserveY);
-        uint256 spike = tradeRatio * 5 / 4;
+        uint256 linearPart = tradeRatio * 3 / 4;
+        uint256 quadPart = wmul(tradeRatio, tradeRatio) * 25;
+        uint256 spike = linearPart + quadPart;
 
         uint256 targetFee = baseFee + spike;
 
@@ -47,6 +46,6 @@ contract Strategy is AMMStrategyBase {
     }
 
     function getName() external pure override returns (string memory) {
-        return "ContSpike75";
+        return "LinQuadSpike";
     }
 }

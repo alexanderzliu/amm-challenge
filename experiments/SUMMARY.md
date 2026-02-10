@@ -1,22 +1,23 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 008 -->
+<!-- Last synced with experiment: 011 -->
 
 ## Current Best
-- **Strategy**: ContSpike75 (exp 008), Edge: ~434 (100 sims)
-- **Mechanism**: 75 bps base + continuous spike proportional to trade size (spike = tradeRatio * 1.25), fast 1/3 decay
+- **Strategy**: LinQuad-InstantRise (exp 011), Edge: ~479 (100 sims)
+- **Mechanism**: Base 30 bps + spike = tradeRatio * 0.75 + tradeRatio² * 25; instant rise, 1/5 decay
 - **File**: my_strategy.sol
 
 ## Established Facts
-1. **Optimal fee region is ~75-80 bps, NOT 30 bps** — the biggest finding (exp 004)
-2. Arb protection (quadratic) far outweighs retail volume lost to vanilla at high fees
-3. Retail routing is proportional (not winner-take-all) — still get retail even at 2.5x vanilla's fee
-4. Arb is independent per AMM — wider no-arb band directly reduces losses
-5. Continuous spike proportional to trade size beats discrete tiers (exp 008 vs 007)
-6. Bigger spike magnitudes help — arb trades are large, so high spikes = high protection (exp 006→007)
-7. Faster spike decay is better (1/3 > 1/4 > 1/8) — protection should be short-lived (exp 008)
-8. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
-9. Single vol signal outperforms dual signal — simpler is better (exp 001→002)
-10. PropVol was suboptimal because it spent most time at 15-30 bps (exp 004)
+1. **Optimal fixed fee is ~75-80 bps** — but dynamic spikes shift this (exp 004)
+2. **With strong spikes, optimal base drops to 30-40 bps** — spikes handle arb, low base captures retail (exp 010)
+3. **Lin+quad spike > pure linear > pure quadratic** — hybrid penalizes large trades more while still reacting to small ones (exp 009)
+4. **Instant rise + slow decay is optimal** — react instantly to threats, relax gradually (exp 011)
+5. No smoothing at all (instant both ways) is terrible — fee must persist across trades (exp 011)
+6. Arb protection (quadratic) far outweighs retail volume lost to vanilla at high fees
+7. Retail routing is proportional (not winner-take-all) — still get retail even at 2.5x vanilla's fee
+8. Arb is independent per AMM — wider no-arb band directly reduces losses
+9. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
+10. Price-change-based spike (450) is worse than trade-size-based spike (479) — size is a better signal
+11. Trade activity EMA adds no value on top of the smoothed spike mechanism (exp ~011)
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -28,19 +29,26 @@
 | 006 | SpikeOnly80 | 399 | High base + 2-tier spikes |
 | 007 | SpikeOnly75-4T | 422 | Multi-tier aggressive spikes |
 | 008 | ContSpike75 | 434 | Continuous proportional spike |
+| 009 | LinQuadSpike | 445 | Hybrid lin+quad spike formula |
+| 010 | LinQuad-LowBase | 464 | Base drops to 30 bps with strong spikes |
+| 011 | LinQuad-InstantRise | 479 | Instant rise + 1/5 decay |
 
 ## Dead Ends (Do NOT Revisit)
 - Directional fee skew / asymmetric bid-ask from trade direction (exp 003)
 - Dual EMA signals blended together (exp 001)
-- Low-fee undercutting of vanilla — arb protection matters more than retail capture
-- High-floor vol-EMA (HiBase-VolAdj) — miscalibrated vol baseline caused terrible results (137 edge)
+- Low-fee undercutting of vanilla without spikes — arb protection matters more
+- High-floor vol-EMA (HiBase-VolAdj) — miscalibrated vol baseline (137 edge)
+- Pure quadratic spike — underreacts to small trades (427 vs 445 lin+quad)
+- Price-change spike — trade size is a better reactive signal (450 vs 479)
+- Trade activity EMA on top of smoothed spike — no improvement
+- No smoothing (instant fee) — terrible without memory (396)
 
 ## Next Experiments (Priority Order)
-1. Quadratic spike: spike ∝ tradeRatio² — penalize large trades more
-2. Combine continuous spike with vol-EMA for base fee adjustment
-3. Asymmetric rise/decay tuning (currently 2/3 rise, 1/3 decay)
-4. Use amountX instead of amountY for spike calculation on buy trades
-5. Higher-confidence run of ContSpike75 at 500+ sims
+1. Max of X/Y trade ratios (use both sides of the trade for spike)
+2. Separate bid/ask fees (different fee for buys vs sells based on trade info)
+3. Further tune lin+quad coefficients near the optimum
+4. Higher-confidence run (500 sims) to validate 479 edge
+5. Combine vol-EMA with spike for base fee modulation (vol-regime aware base)
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge

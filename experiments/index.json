@@ -808,5 +808,51 @@
       "time-switching",
       "rejected"
     ]
+  },
+  {
+    "id": 19,
+    "name": "DecayVariants",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Two-tier decay (slow plateau then fast drop) or adaptive base fee (decaying floor below vanilla) can improve fee dynamics",
+    "variables_changed": [
+      "decay_structure",
+      "base_fee_floor"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Two-tier decay: best was p8,s9/10,f2/3 at 480 \u2014 within noise of baseline 482",
+      "Slow decay (9/10) during plateau, fast (2/3) after \u2014 adds complexity for no gain",
+      "Adaptive base fee (30 bps decaying to 5-20 bps floor): all scored 485 identically",
+      "Floor never activates in practice \u2014 fee rarely decays below 30 bps before next spike",
+      "Sub-base undercutting at 5-25 bps floor: all identical (485) \u2014 confirms floor is unreachable",
+      "Decay rate 9/10 at base 30: 481.50 \u2014 very slow decay doesn't help either"
+    ],
+    "params": {
+      "two_tier_configs": "plateau 3/5/8, slow 9/10 or 11/12, fast 1/2 or 3/5 or 2/3",
+      "adaptive_base_configs": "floor 5-25 bps, ceiling 25-35 bps, decay 0.5-2 bps/trade",
+      "sub_base_floors": [
+        5,
+        10,
+        15,
+        20,
+        25
+      ]
+    },
+    "results": {
+      "edge": 480.29,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "decay",
+      "two-tier",
+      "adaptive-base",
+      "floor",
+      "rejected"
+    ]
   }
 ]

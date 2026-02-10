@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 018 -->
+<!-- Last synced with experiment: 019 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -62,9 +62,10 @@
 - Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 017)
 - Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 018)
 - Early/late base fee switching — no improvement (exp 018)
-- Adaptive base fee (decaying floor) — never activates in practice (exp 013)
+- Adaptive base fee (decaying floor) — never activates in practice (exp 019)
 - Trade frequency EMA for regime detection — no value add (exp 018)
-- Two-tier decay (plateau + fast drop) — no improvement (exp 013)
+- Two-tier decay (plateau + fast drop) — no improvement (exp 019)
+- Sub-base undercutting floors — unreachable, no effect (exp 019)
 - Direction-dependent spike coefficients — no improvement (exp 015)
 - Geometric mean / max / avg of X,Y ratios — all same as Y-only (exp 015)
 

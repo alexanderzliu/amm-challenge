@@ -4,9 +4,10 @@ pragma solidity ^0.8.24;
 import {AMMStrategyBase} from "./AMMStrategyBase.sol";
 import {IAMMStrategy, TradeInfo} from "./IAMMStrategy.sol";
 
-/// @title LinQuad Spike — Instant Rise, Slow Decay
+/// @title LinQuad — Multiplicative Decay
 /// @notice Base 30 bps + spike = tradeRatio * 0.75 + tradeRatio² * 25.
-///         Instant rise (immediate arb protection), 1/5 decay (sustained defense).
+///         fee = max(baseFee + spike, prevFee * 7/8).
+///         Cleaner than additive decay, slightly better empirically.
 contract Strategy is AMMStrategyBase {
     // slots[0] = current fee (WAD)
 
@@ -29,22 +30,19 @@ contract Strategy is AMMStrategyBase {
         uint256 quadPart = wmul(tradeRatio, tradeRatio) * 25;
         uint256 spike = linearPart + quadPart;
 
-        uint256 targetFee = baseFee + spike;
+        uint256 freshFee = baseFee + spike;
+        uint256 decayedFee = fee * 7 / 8;
+        if (decayedFee < baseFee) decayedFee = baseFee;
 
-        if (targetFee > fee) {
-            fee = targetFee;  // instant rise
-        } else {
-            fee = fee - (fee - targetFee) / 5;  // slow decay
-        }
+        fee = freshFee > decayedFee ? freshFee : decayedFee;
 
         fee = clampFee(fee);
-        if (fee < baseFee) fee = baseFee;
 
         slots[0] = fee;
         return (fee, fee);
     }
 
     function getName() external pure override returns (string memory) {
-        return "LinQuad-InstRise";
+        return "LinQuad-MultDecay";
     }
 }

@@ -1,9 +1,9 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 011 -->
+<!-- Last synced with experiment: 012 -->
 
 ## Current Best
-- **Strategy**: LinQuad-InstantRise (exp 011), Edge: ~479 (100 sims)
-- **Mechanism**: Base 30 bps + spike = tradeRatio * 0.75 + tradeRatio² * 25; instant rise, 1/5 decay
+- **Strategy**: LinQuad-MultDecay (exp 012), Edge: ~478 (500 sims)
+- **Mechanism**: fee = max(30bps + tradeRatio*0.75 + tradeRatio²*25, prevFee*7/8)
 - **File**: my_strategy.sol
 
 ## Established Facts
@@ -32,6 +32,7 @@
 | 009 | LinQuadSpike | 445 | Hybrid lin+quad spike formula |
 | 010 | LinQuad-LowBase | 464 | Base drops to 30 bps with strong spikes |
 | 011 | LinQuad-InstantRise | 479 | Instant rise + 1/5 decay |
+| 012 | LinQuad-MultDecay | 478 | Multiplicative decay (fee*7/8), 500-sim validated |
 
 ## Dead Ends (Do NOT Revisit)
 - Directional fee skew / asymmetric bid-ask from trade direction (exp 003)
@@ -42,13 +43,17 @@
 - Price-change spike — trade size is a better reactive signal (450 vs 479)
 - Trade activity EMA on top of smoothed spike — no improvement
 - No smoothing (instant fee) — terrible without memory (396)
+- Asymmetric bid/ask fees — hurts significantly (405 vs 474) under GBM
+- Vol-regime-aware base fee — corrupted signal from trade price changes (456 vs 474)
+- Arb cluster detection (adaptive decay) — no improvement (474)
+- Max X/Y ratio — no difference from Y-only (474)
+- Multiplicative spike on current fee — runaway fee inflation (155)
 
 ## Next Experiments (Priority Order)
-1. Max of X/Y trade ratios (use both sides of the trade for spike)
-2. Separate bid/ask fees (different fee for buys vs sells based on trade info)
-3. Further tune lin+quad coefficients near the optimum
-4. Higher-confidence run (500 sims) to validate 479 edge
-5. Combine vol-EMA with spike for base fee modulation (vol-regime aware base)
+1. Explore fundamentally different spike shapes (piecewise, capped, etc.)
+2. Time-based features (use timestamp to detect regime changes)
+3. Reserve-ratio-based signals (track xy=k invariant changes)
+4. Ensemble: blend multiple simple strategies
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge

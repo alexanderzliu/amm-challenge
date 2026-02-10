@@ -380,6 +380,41 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "instant-rise", "current-best"]
+    "tags": ["spike-only", "lin-quad", "low-base", "instant-rise"]
+  },
+  {
+    "id": 12,
+    "name": "LinQuad-MultDecay",
+    "parent_id": 11,
+    "date": "2026-02-10",
+    "hypothesis": "Multiplicative decay (fee * k) is cleaner and potentially better than additive decay (fee - (fee-target)/n)",
+    "variables_changed": ["decay_type", "decay_factor"],
+    "verdict": "confirmed",
+    "insights": [
+      "Mult decay (478 at 500 sims) marginally better than additive (474 at 500 sims)",
+      "fee = max(baseFee + spike, prevFee * decay) is simpler than if/else smoothing",
+      "Decay factor sweep: 4/5→476, 5/6→478, 6/7→478, 7/8→478, 9/10→477",
+      "Sweet spot at 5/6 to 7/8 — fees decay by 12-17% per trade",
+      "Also tested: asymmetric bid/ask (405 — hurts), vol-regime base (456 — hurts), arb clustering (474 — no help), max X/Y ratio (474 — no help)",
+      "Strategy appears converged around 474-478 at 500 sims"
+    ],
+    "params": {
+      "base_fee_bps": 30,
+      "spike_formula": "tradeRatio * 0.75 + tradeRatio^2 * 25",
+      "linear_coeff": 0.75,
+      "quad_coeff": 25,
+      "decay_type": "multiplicative",
+      "decay_factor": "7/8",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 478.29,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay", "current-best"]
   }
 ]

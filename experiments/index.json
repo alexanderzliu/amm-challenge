@@ -5,11 +5,13 @@
     "parent_id": null,
     "date": "2026-02-10",
     "hypothesis": "Dual-signal volatility tracking (price EMA + trade size EMA) with additive fee adjustment outperforms fixed fees",
-    "variables_changed": ["initial_design"],
+    "variables_changed": [
+      "initial_design"
+    ],
     "verdict": "confirmed_but_superseded",
     "insights": [
       "Dynamic fees can beat vanilla baseline (~347 vs vanilla 250-350)",
-      "Dual EMA signals dilute the stronger signal — net negative vs single signal",
+      "Dual EMA signals dilute the stronger signal \u2014 net negative vs single signal",
       "Decay at 20% per trade may be too slow, keeping fees elevated unnecessarily",
       "Combined vol signal averaging two EMAs adds complexity without benefit"
     ],
@@ -22,7 +24,7 @@
       "spike_threshold_large": 0.02,
       "spike_threshold_medium": 0.01,
       "price_ema_alpha": 0.05,
-      "trade_size_ema_alpha": 0.10,
+      "trade_size_ema_alpha": 0.1,
       "rise_speed": "1/2",
       "decay_speed": "1/5",
       "fee_floor_bps": 8,
@@ -36,7 +38,12 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["vol-scaling", "dual-signal", "additive", "symmetric"]
+    "tags": [
+      "vol-scaling",
+      "dual-signal",
+      "additive",
+      "symmetric"
+    ]
   },
   {
     "id": 2,
@@ -44,7 +51,16 @@
     "parent_id": 1,
     "date": "2026-02-10",
     "hypothesis": "Fee proportional to realized volatility (fee = k * sigma) with single EMA outperforms dual-signal additive approach",
-    "variables_changed": ["fee_formula", "num_signals", "ema_alpha", "fee_floor", "spike_magnitudes", "rise_speed", "decay_speed", "vol_seed"],
+    "variables_changed": [
+      "fee_formula",
+      "num_signals",
+      "ema_alpha",
+      "fee_floor",
+      "spike_magnitudes",
+      "rise_speed",
+      "decay_speed",
+      "vol_seed"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Simpler single-signal approach (price EMA only) outperforms dual-signal by +8%",
@@ -55,7 +71,7 @@
     ],
     "params": {
       "vol_multiplier": 3,
-      "ema_alpha": 0.10,
+      "ema_alpha": 0.1,
       "fee_floor_bps": 15,
       "spike_large_bps": 20,
       "spike_medium_bps": 10,
@@ -74,7 +90,12 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["vol-scaling", "single-ema", "proportional", "symmetric"]
+    "tags": [
+      "vol-scaling",
+      "single-ema",
+      "proportional",
+      "symmetric"
+    ]
   },
   {
     "id": 3,
@@ -82,17 +103,21 @@
     "parent_id": 2,
     "date": "2026-02-10",
     "hypothesis": "Directional asymmetric fees (protect trending side, discount safe side) outperform symmetric PropVol",
-    "variables_changed": ["fee_symmetry", "direction_ema", "fee_floor"],
+    "variables_changed": [
+      "fee_symmetry",
+      "direction_ema",
+      "fee_floor"
+    ],
     "verdict": "rejected",
     "insights": [
       "Directional skew had zero meaningful impact (374.21 vs 374.54)",
-      "GBM random walk has no persistent trends — direction EMA stays near neutral",
+      "GBM random walk has no persistent trends \u2014 direction EMA stays near neutral",
       "Router neutralizes asymmetric fee benefit: retail is 50/50 buy/sell",
-      "Added complexity (5 slots vs 3) for no gain — confirms simpler is better"
+      "Added complexity (5 slots vs 3) for no gain \u2014 confirms simpler is better"
     ],
     "params": {
       "vol_multiplier": 3,
-      "ema_alpha": 0.10,
+      "ema_alpha": 0.1,
       "fee_floor_bps": 10,
       "spike_large_bps": 20,
       "spike_medium_bps": 10,
@@ -113,27 +138,50 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["vol-scaling", "single-ema", "proportional", "asymmetric", "directional"]
+    "tags": [
+      "vol-scaling",
+      "single-ema",
+      "proportional",
+      "asymmetric",
+      "directional"
+    ]
   },
   {
     "id": 4,
     "name": "Fixed Fee Sweep",
     "parent_id": 2,
     "date": "2026-02-10",
-    "hypothesis": "A well-chosen fixed fee may outperform PropVol dynamic fees — need to find optimal fixed point to establish baseline",
-    "variables_changed": ["fee_type", "fee_level"],
+    "hypothesis": "A well-chosen fixed fee may outperform PropVol dynamic fees \u2014 need to find optimal fixed point to establish baseline",
+    "variables_changed": [
+      "fee_type",
+      "fee_level"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Optimal fixed fee is ~75-80 bps (edge ~385 at 500 sims), NOT near vanilla's 30 bps",
       "PropVol at 374 was sitting in a suboptimal fee region (15-30 bps most of the time)",
       "Arb protection from high fees (quadratic benefit) far outweighs retail volume lost to vanilla",
-      "Retail routing is proportional (not winner-take-all) — we still get some retail even at 80 bps",
-      "Arb is independent per AMM — wider no-arb band from high fees directly reduces losses",
-      "Fixed fee curve: 25→330, 30→352, 40→368, 50→380, 60→387, 70→391, 80→392, 90→390, 100→386"
+      "Retail routing is proportional (not winner-take-all) \u2014 we still get some retail even at 80 bps",
+      "Arb is independent per AMM \u2014 wider no-arb band from high fees directly reduces losses",
+      "Fixed fee curve: 25\u2192330, 30\u2192352, 40\u2192368, 50\u2192380, 60\u2192387, 70\u2192391, 80\u2192392, 90\u2192390, 100\u2192386"
     ],
     "params": {
       "fee_type": "fixed",
-      "fee_bps_sweep": [25, 28, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 100],
+      "fee_bps_sweep": [
+        25,
+        28,
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        60,
+        70,
+        80,
+        90,
+        100
+      ],
       "best_fixed_bps": 80,
       "symmetric": true
     },
@@ -145,15 +193,22 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["fixed-fee", "baseline", "sweep", "paradigm-shift"]
+    "tags": [
+      "fixed-fee",
+      "baseline",
+      "sweep",
+      "paradigm-shift"
+    ]
   },
   {
     "id": 5,
     "name": "PropVol No Spikes",
     "parent_id": 2,
     "date": "2026-02-10",
-    "hypothesis": "Trade-size spike logic in PropVol may hurt more than it helps — isolate its contribution",
-    "variables_changed": ["spike_removal"],
+    "hypothesis": "Trade-size spike logic in PropVol may hurt more than it helps \u2014 isolate its contribution",
+    "variables_changed": [
+      "spike_removal"
+    ],
     "verdict": "rejected",
     "insights": [
       "Spikes help slightly: 374.54 with spikes vs 370.55 without (+4 edge)",
@@ -162,7 +217,7 @@
     ],
     "params": {
       "vol_multiplier": 3,
-      "ema_alpha": 0.10,
+      "ema_alpha": 0.1,
       "fee_floor_bps": 15,
       "spike_large_bps": 0,
       "spike_medium_bps": 0,
@@ -178,7 +233,11 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["vol-scaling", "ablation", "no-spikes"]
+    "tags": [
+      "vol-scaling",
+      "ablation",
+      "no-spikes"
+    ]
   },
   {
     "id": 6,
@@ -186,13 +245,17 @@
     "parent_id": 4,
     "date": "2026-02-10",
     "hypothesis": "Fixed 80 bps base with spike-up on large trades can beat pure fixed fee by adding arb protection when it matters most",
-    "variables_changed": ["strategy_paradigm", "base_fee", "spike_mechanism"],
+    "variables_changed": [
+      "strategy_paradigm",
+      "base_fee",
+      "spike_mechanism"
+    ],
     "verdict": "confirmed",
     "insights": [
-      "SpikeOnly80 (398.55) beats Fixed80 (385) by +14 edge — spikes add value on top of high base",
+      "SpikeOnly80 (398.55) beats Fixed80 (385) by +14 edge \u2014 spikes add value on top of high base",
       "Paradigm shift: abandon vol-tracking EMA, use trade-size-only reactive spikes",
-      "Large trades are predominantly arb — spiking fees after them protects against follow-up arbs",
-      "Base fee insensitive in 70-80 bps range (70→399, 75→399, 80→399)"
+      "Large trades are predominantly arb \u2014 spiking fees after them protects against follow-up arbs",
+      "Base fee insensitive in 70-80 bps range (70\u2192399, 75\u2192399, 80\u2192399)"
     ],
     "params": {
       "base_fee_bps": 80,
@@ -212,28 +275,49 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "high-base", "trade-size-reactive"]
+    "tags": [
+      "spike-only",
+      "high-base",
+      "trade-size-reactive"
+    ]
   },
   {
     "id": 7,
     "name": "SpikeOnly75-4T",
     "parent_id": 6,
     "date": "2026-02-10",
-    "hypothesis": "More spike tiers with larger magnitudes improve arb protection — bigger spikes = more edge",
-    "variables_changed": ["num_tiers", "spike_magnitudes", "base_fee", "decay_speed"],
+    "hypothesis": "More spike tiers with larger magnitudes improve arb protection \u2014 bigger spikes = more edge",
+    "variables_changed": [
+      "num_tiers",
+      "spike_magnitudes",
+      "base_fee",
+      "decay_speed"
+    ],
     "verdict": "confirmed",
     "insights": [
-      "Multi-tier spikes (422) beat 2-tier (399) by +23 edge — granularity matters",
-      "Bigger spike magnitudes help: +40/+20 bps → +300/+200/+150/+75/+25 bps",
-      "Faster decay (1/4 vs 1/6) is better — spike should be short-lived",
+      "Multi-tier spikes (422) beat 2-tier (399) by +23 edge \u2014 granularity matters",
+      "Bigger spike magnitudes help: +40/+20 bps \u2192 +300/+200/+150/+75/+25 bps",
+      "Faster decay (1/4 vs 1/6) is better \u2014 spike should be short-lived",
       "Base 75 bps slightly better than 80 (both ~399 in 2-tier, 75 chosen for 4-tier)",
-      "Progression: 2-tier +40/+20→399, 3-tier +200/+150/+75→417, 4-tier +300/+200/+150/+75/+25→422"
+      "Progression: 2-tier +40/+20\u2192399, 3-tier +200/+150/+75\u2192417, 4-tier +300/+200/+150/+75/+25\u2192422"
     ],
     "params": {
       "base_fee_bps": 75,
       "num_tiers": 5,
-      "spike_tiers_bps": [25, 75, 150, 200, 300],
-      "spike_thresholds": [0.005, 0.01, 0.02, 0.03, 0.05],
+      "spike_tiers_bps": [
+        25,
+        75,
+        150,
+        200,
+        300
+      ],
+      "spike_thresholds": [
+        0.005,
+        0.01,
+        0.02,
+        0.03,
+        0.05
+      ],
       "rise_speed": "2/3",
       "decay_speed": "1/4",
       "symmetric": true
@@ -246,20 +330,29 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "high-base", "multi-tier", "aggressive-spikes"]
+    "tags": [
+      "spike-only",
+      "high-base",
+      "multi-tier",
+      "aggressive-spikes"
+    ]
   },
   {
     "id": 8,
     "name": "ContSpike75",
     "parent_id": 7,
     "date": "2026-02-10",
-    "hypothesis": "Continuous spike proportional to trade size outperforms discrete tiers — eliminates arbitrary thresholds and provides smoother fee response",
-    "variables_changed": ["spike_type", "spike_multiplier", "decay_speed"],
+    "hypothesis": "Continuous spike proportional to trade size outperforms discrete tiers \u2014 eliminates arbitrary thresholds and provides smoother fee response",
+    "variables_changed": [
+      "spike_type",
+      "spike_multiplier",
+      "decay_speed"
+    ],
     "verdict": "confirmed",
     "insights": [
-      "Continuous spike (434) beats multi-tier (422) by +12 edge — smoother is better",
-      "Optimal spike multiplier ~1-1.25x: 0.5x→418, 0.75x→427, 1x→431, 1.25x→432, 1.5x→429",
-      "Faster decay (1/3) beats slower (1/4→432, 1/8→424) — spikes should be short-lived",
+      "Continuous spike (434) beats multi-tier (422) by +12 edge \u2014 smoother is better",
+      "Optimal spike multiplier ~1-1.25x: 0.5x\u2192418, 0.75x\u2192427, 1x\u2192431, 1.25x\u2192432, 1.5x\u2192429",
+      "Faster decay (1/3) beats slower (1/4\u2192432, 1/8\u2192424) \u2014 spikes should be short-lived",
       "Elegantly simple: spike = tradeRatio * 5/4, no threshold tuning needed",
       "Strategy is now just 3 params: base_fee, spike_mult, decay_speed"
     ],
@@ -279,21 +372,29 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "high-base", "continuous"]
+    "tags": [
+      "spike-only",
+      "high-base",
+      "continuous"
+    ]
   },
   {
     "id": 9,
     "name": "LinQuadSpike",
     "parent_id": 8,
     "date": "2026-02-10",
-    "hypothesis": "Hybrid linear+quadratic spike penalizes large trades superlinearly while still reacting to small trades — better than pure linear or pure quadratic",
-    "variables_changed": ["spike_formula", "linear_coeff", "quad_coeff"],
+    "hypothesis": "Hybrid linear+quadratic spike penalizes large trades superlinearly while still reacting to small trades \u2014 better than pure linear or pure quadratic",
+    "variables_changed": [
+      "spike_formula",
+      "linear_coeff",
+      "quad_coeff"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Lin+quad (445) beats pure linear (434) and pure quadratic (427)",
       "Pure quadratic underreacts to small trades; pure linear underreacts to large trades",
-      "Optimal coefficients: linear=0.75, quad=25 (q sweep: 15→441, 25→442, 50→438, 100→392)",
-      "Linear coeff sweep: 0.5→443, 0.75→445, 1.0→442 — moderate linear + small quad is ideal"
+      "Optimal coefficients: linear=0.75, quad=25 (q sweep: 15\u2192441, 25\u2192442, 50\u2192438, 100\u2192392)",
+      "Linear coeff sweep: 0.5\u2192443, 0.75\u2192445, 1.0\u2192442 \u2014 moderate linear + small quad is ideal"
     ],
     "params": {
       "base_fee_bps": 75,
@@ -305,29 +406,35 @@
       "symmetric": true
     },
     "results": {
-      "edge": 444.60,
+      "edge": 444.6,
       "win_rate": null,
       "n_simulations": 100,
       "retail_volume_share": null
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "continuous"]
+    "tags": [
+      "spike-only",
+      "lin-quad",
+      "continuous"
+    ]
   },
   {
     "id": 10,
     "name": "LinQuad-LowBase",
     "parent_id": 9,
     "date": "2026-02-10",
-    "hypothesis": "With strong lin+quad spikes handling arb protection, the optimal base fee drops below 75 bps — spikes substitute for high fixed base",
-    "variables_changed": ["base_fee"],
+    "hypothesis": "With strong lin+quad spikes handling arb protection, the optimal base fee drops below 75 bps \u2014 spikes substitute for high fixed base",
+    "variables_changed": [
+      "base_fee"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Optimal base drops to 30-40 bps with lin+quad spikes (vs 75-80 for pure fixed)",
-      "Base sweep: 20→456, 30→464, 35→464, 40→463, 50→461, 60→456, 75→445",
+      "Base sweep: 20\u2192456, 30\u2192464, 35\u2192464, 40\u2192463, 50\u2192461, 60\u2192456, 75\u2192445",
       "Spikes handle arb protection dynamically, so base can be low to capture more retail",
       "This reverses the exp 004 finding: with good-enough spikes, low base IS optimal",
-      "Flat plateau at 30-40 bps — not very sensitive in that range"
+      "Flat plateau at 30-40 bps \u2014 not very sensitive in that range"
     ],
     "params": {
       "base_fee_bps": 30,
@@ -346,21 +453,29 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "base-sweep"]
+    "tags": [
+      "spike-only",
+      "lin-quad",
+      "low-base",
+      "base-sweep"
+    ]
   },
   {
     "id": 11,
     "name": "LinQuad-InstantRise",
     "parent_id": 10,
     "date": "2026-02-10",
-    "hypothesis": "Instant fee rise (no smoothing upward) + slow decay maximizes arb protection — react instantly to threats, relax gradually",
-    "variables_changed": ["rise_speed", "decay_speed"],
+    "hypothesis": "Instant fee rise (no smoothing upward) + slow decay maximizes arb protection \u2014 react instantly to threats, relax gradually",
+    "variables_changed": [
+      "rise_speed",
+      "decay_speed"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Instant rise (479) beats 9/10 rise (477) beats 3/4 rise (470) beats 2/3 rise (464)",
-      "Decay sweep with instant rise: 1/3→464, 1/4→479, 1/5→479, 1/6→479, 1/10→466",
-      "Optimal decay is 1/4 to 1/6 — not very sensitive in this range",
-      "No smoothing at all (instant both ways) is terrible (396) — memory/persistence matters",
+      "Decay sweep with instant rise: 1/3\u2192464, 1/4\u2192479, 1/5\u2192479, 1/6\u2192479, 1/10\u2192466",
+      "Optimal decay is 1/4 to 1/6 \u2014 not very sensitive in this range",
+      "No smoothing at all (instant both ways) is terrible (396) \u2014 memory/persistence matters",
       "Asymmetric smoothing is key: instant up, slow down"
     ],
     "params": {
@@ -380,7 +495,12 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "instant-rise"]
+    "tags": [
+      "spike-only",
+      "lin-quad",
+      "low-base",
+      "instant-rise"
+    ]
   },
   {
     "id": 12,
@@ -388,14 +508,17 @@
     "parent_id": 11,
     "date": "2026-02-10",
     "hypothesis": "Multiplicative decay (fee * k) is cleaner and potentially better than additive decay (fee - (fee-target)/n)",
-    "variables_changed": ["decay_type", "decay_factor"],
+    "variables_changed": [
+      "decay_type",
+      "decay_factor"
+    ],
     "verdict": "confirmed",
     "insights": [
       "Mult decay (478 at 500 sims) marginally better than additive (474 at 500 sims)",
       "fee = max(baseFee + spike, prevFee * decay) is simpler than if/else smoothing",
-      "Decay factor sweep: 4/5→476, 5/6→478, 6/7→478, 7/8→478, 9/10→477",
-      "Sweet spot at 5/6 to 7/8 — fees decay by 12-17% per trade",
-      "Also tested: asymmetric bid/ask (405 — hurts), vol-regime base (456 — hurts), arb clustering (474 — no help), max X/Y ratio (474 — no help)",
+      "Decay factor sweep: 4/5\u2192476, 5/6\u2192478, 6/7\u2192478, 7/8\u2192478, 9/10\u2192477",
+      "Sweet spot at 5/6 to 7/8 \u2014 fees decay by 12-17% per trade",
+      "Also tested: asymmetric bid/ask (405 \u2014 hurts), vol-regime base (456 \u2014 hurts), arb clustering (474 \u2014 no help), max X/Y ratio (474 \u2014 no help)",
       "Strategy appears converged around 474-478 at 500 sims"
     ],
     "params": {
@@ -415,34 +538,34 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay"]
+    "tags": [
+      "spike-only",
+      "lin-quad",
+      "low-base",
+      "mult-decay"
+    ]
   },
   {
     "id": 13,
     "name": "LinQuad-Tuned",
     "parent_id": 12,
     "date": "2026-02-10",
-    "hypothesis": "Extensive grid search can find better base/quad/linear/decay params — previous best was not fully optimized",
-    "variables_changed": ["base_fee", "quad_coeff", "decay_factor"],
+    "hypothesis": "Extensive grid search can find better base/quad/linear/decay params \u2014 previous best was not fully optimized",
+    "variables_changed": [
+      "base_fee",
+      "quad_coeff",
+      "decay_factor"
+    ],
     "verdict": "confirmed",
     "insights": [
-      "Optimal base drops further from 30 to 24 bps — more aggressive vanilla undercutting",
-      "Optimal quad drops from 30 to 27 — slightly less aggressive spike",
+      "Optimal base drops further from 30 to 24 bps \u2014 more aggressive vanilla undercutting",
+      "Optimal quad drops from 30 to 27 \u2014 slightly less aggressive spike",
       "Decay 6/7 is optimal (13/15 gave same result within noise)",
       "Linear 7/8 is optimal (13/15 gave same result within noise)",
-      "Cubic term always hurts — confirmed dead end",
-      "Max/geomean of X,Y ratios makes no difference vs Y-only",
-      "Spike caps hurt — unbounded spikes are essential",
-      "Piecewise linear spike is worse than continuous lin+quad",
-      "Direction-dependent spike coefficients make no difference",
-      "Adaptive base fee (decaying below floor) doesn't help — base already captures the effect",
-      "Trade frequency EMA adds no value on top of trade-size spike",
-      "Gap-aware decay (per-step instead of per-trade) hurts",
-      "Realized vol from spot prices is corrupted signal — massively hurts (294 edge)",
-      "Two-tier decay (plateau then fast drop) makes no difference",
-      "Strategy appears converged — all creative ideas tested give <1 edge improvement",
-      "Retail volume share is ~39.5% (vanilla gets 60%) — room to capture more",
-      "Seeds are deterministic: same 500 seeds give exactly reproducible results"
+      "Base sweep at 500 sims: 22\u2192481.20, 23\u2192481.53, 24\u2192481.68, 25\u2192481.53, 26\u2192480.68, 27\u2192480.18, 30\u2192478.39",
+      "Quad sweep at b25: 20\u2192480.79, 25\u2192481.91, 27\u2192482.04, 28\u2192482.03, 30\u2192481.53, 35\u2192479.53",
+      "Seeds are deterministic: same 500 seeds give exactly reproducible results",
+      "Retail volume share is ~39.5% (vanilla gets 60%) \u2014 room to capture more"
     ],
     "params": {
       "base_fee_bps": 24,
@@ -461,6 +584,56 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay", "fine-tuned", "current-best"]
+    "tags": [
+      "spike-only",
+      "lin-quad",
+      "low-base",
+      "mult-decay",
+      "fine-tuned",
+      "current-best"
+    ]
+  },
+  {
+    "id": 14,
+    "name": "CubicSpike",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Adding a cubic term to the spike formula penalizes very large trades (arbs) even more aggressively than quadratic alone",
+    "variables_changed": [
+      "spike_formula",
+      "cubic_coeff"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Cubic coeff 500: edge 471 (100 sims) \u2014 hurts by over-penalizing",
+      "Cubic coeff 200: edge 479 (100 sims) \u2014 small enough to be no effect",
+      "Cubic coeff 50-200 at b24: all 480-482, never beats baseline (500 sims)",
+      "Lin+quad already captures the right curvature \u2014 cubic adds nothing"
+    ],
+    "params": {
+      "base_fee_bps": 24,
+      "spike_formula": "tradeRatio * 7/8 + tradeRatio^2 * 27 + tradeRatio^3 * C",
+      "cubic_coeff_sweep": [
+        50,
+        100,
+        200,
+        300,
+        500
+      ],
+      "best_cubic": "none (all hurt or neutral)"
+    },
+    "results": {
+      "edge": 479.04,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "spike-shape",
+      "cubic",
+      "rejected"
+    ]
   }
 ]

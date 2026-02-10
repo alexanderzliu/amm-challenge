@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 013 -->
+<!-- Last synced with experiment: 014 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -20,7 +20,7 @@
 11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 013)
 12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
 13. **Seeds are deterministic** — same N seeds always give same result, so comparisons are precise (exp 013)
-14. **Cubic spike term always hurts** — over-penalizes large trades (exp 013)
+14. **Cubic spike term always hurts** — over-penalizes large trades (exp 014)
 15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 013)
 
 ## Evolution of Edge
@@ -53,7 +53,7 @@
 - Arb cluster detection (adaptive decay) — no improvement (474)
 - Max X/Y ratio — no difference from Y-only (474)
 - Multiplicative spike on current fee — runaway fee inflation (155)
-- Cubic spike term — over-penalizes, always hurts (exp 013)
+- Cubic spike term — over-penalizes, always hurts (exp 014)
 - Spike caps (100-500 bps) — limiting spikes loses arb protection (exp 013)
 - Piecewise linear spike — worse than continuous lin+quad (exp 013)
 - Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 013)

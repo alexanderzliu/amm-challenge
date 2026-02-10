@@ -1046,5 +1046,49 @@
       "vol-proportional",
       "rejected"
     ]
+  },
+  {
+    "id": 24,
+    "name": "BidAskAndSpikeCurves",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Reserve-state bid/ask asymmetry or alternative spike curve shapes (saturating, hybrid, price-change) can break through 482",
+    "variables_changed": [
+      "bid_ask_asymmetry",
+      "spike_shape",
+      "spike_signal"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Reserve-state bid/ask skew (5 bps at 10% dev): 481.96 at 500 sims — no improvement",
+      "Stronger reserve skew (50 bps at 10% dev): 477.64 at 500 sims — hurts, confirms asymmetric fees don't help under GBM",
+      "Saturating spike (Hill function, max 200 bps): 448 at 100 sims — too limited, same as cap problem",
+      "Hybrid saturating bonus (+20 bps) on top of lin+quad: 479.72 at 500 sims — bonus inflates retail fee",
+      "Price-change spike (spot price delta): 70 at 100 sims — catastrophic, confirms price signals are corrupted",
+      "Partial stacking (1/4 decayed excess added to fresh): 481.68 at 500 sims — within noise",
+      "Key insight: if winner's avg fee 36.1 is volume-weighted, then arb sees ~72 bps and retail sees ~25 bps — similar to our mechanism but winner loses less retail during spikes"
+    ],
+    "params": {
+      "reserve_skew_scaling": ["1/200 (5bps at 10%)", "1/20 (50bps at 10%)"],
+      "saturating_max_bps": 200,
+      "hybrid_bonus_bps": 20,
+      "partial_stack_frac": "1/4"
+    },
+    "results": {
+      "edge": 481.96,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "bid-ask",
+      "reserve-skew",
+      "saturating",
+      "price-change",
+      "partial-stack",
+      "rejected"
+    ]
   }
 ]

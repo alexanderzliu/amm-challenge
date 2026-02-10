@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 023 -->
+<!-- Last synced with experiment: 024 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -97,6 +97,11 @@
 - Vol-proportional fee from trade variance EMA — corrupted signal, 413 edge (exp 023)
 - Floor above vanilla (31 bps min) — zero effect, fee rarely that low anyway (exp 023)
 - 4D grid search exhausted: base 24 is globally optimal across all spike/decay combos (exp 023)
+- Reserve-state bid/ask asymmetry — neutral to harmful under GBM (exp 024)
+- Saturating spike (Hill function) — same problem as hard caps (exp 024)
+- Hybrid saturating bonus on lin+quad — inflates retail fee (exp 024)
+- Price-change spike — catastrophic, corrupted by fee (exp 024)
+- Partial spike stacking (1/4 decayed excess) — within noise (exp 024)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

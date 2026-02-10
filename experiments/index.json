@@ -74,7 +74,7 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["vol-scaling", "single-ema", "proportional", "symmetric", "current-best"]
+    "tags": ["vol-scaling", "single-ema", "proportional", "symmetric"]
   },
   {
     "id": 3,
@@ -114,5 +114,37 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["vol-scaling", "single-ema", "proportional", "asymmetric", "directional"]
+  },
+  {
+    "id": 4,
+    "name": "Fixed Fee Sweep",
+    "parent_id": 2,
+    "date": "2026-02-10",
+    "hypothesis": "A well-chosen fixed fee may outperform PropVol dynamic fees — need to find optimal fixed point to establish baseline",
+    "variables_changed": ["fee_type", "fee_level"],
+    "verdict": "confirmed",
+    "insights": [
+      "Optimal fixed fee is ~75-80 bps (edge ~385 at 500 sims), NOT near vanilla's 30 bps",
+      "PropVol at 374 was sitting in a suboptimal fee region (15-30 bps most of the time)",
+      "Arb protection from high fees (quadratic benefit) far outweighs retail volume lost to vanilla",
+      "Retail routing is proportional (not winner-take-all) — we still get some retail even at 80 bps",
+      "Arb is independent per AMM — wider no-arb band from high fees directly reduces losses",
+      "Fixed fee curve: 25→330, 30→352, 40→368, 50→380, 60→387, 70→391, 80→392, 90→390, 100→386"
+    ],
+    "params": {
+      "fee_type": "fixed",
+      "fee_bps_sweep": [25, 28, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 100],
+      "best_fixed_bps": 80,
+      "symmetric": true
+    },
+    "results": {
+      "edge": 384.97,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["fixed-fee", "baseline", "sweep", "paradigm-shift"]
   }
 ]

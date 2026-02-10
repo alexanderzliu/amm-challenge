@@ -415,6 +415,52 @@
     },
     "sim_config": "baseline_default",
     "git_hash": null,
-    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay", "current-best"]
+    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay"]
+  },
+  {
+    "id": 13,
+    "name": "LinQuad-Tuned",
+    "parent_id": 12,
+    "date": "2026-02-10",
+    "hypothesis": "Extensive grid search can find better base/quad/linear/decay params — previous best was not fully optimized",
+    "variables_changed": ["base_fee", "quad_coeff", "decay_factor"],
+    "verdict": "confirmed",
+    "insights": [
+      "Optimal base drops further from 30 to 24 bps — more aggressive vanilla undercutting",
+      "Optimal quad drops from 30 to 27 — slightly less aggressive spike",
+      "Decay 6/7 is optimal (13/15 gave same result within noise)",
+      "Linear 7/8 is optimal (13/15 gave same result within noise)",
+      "Cubic term always hurts — confirmed dead end",
+      "Max/geomean of X,Y ratios makes no difference vs Y-only",
+      "Spike caps hurt — unbounded spikes are essential",
+      "Piecewise linear spike is worse than continuous lin+quad",
+      "Direction-dependent spike coefficients make no difference",
+      "Adaptive base fee (decaying below floor) doesn't help — base already captures the effect",
+      "Trade frequency EMA adds no value on top of trade-size spike",
+      "Gap-aware decay (per-step instead of per-trade) hurts",
+      "Realized vol from spot prices is corrupted signal — massively hurts (294 edge)",
+      "Two-tier decay (plateau then fast drop) makes no difference",
+      "Strategy appears converged — all creative ideas tested give <1 edge improvement",
+      "Retail volume share is ~39.5% (vanilla gets 60%) — room to capture more",
+      "Seeds are deterministic: same 500 seeds give exactly reproducible results"
+    ],
+    "params": {
+      "base_fee_bps": 24,
+      "spike_formula": "tradeRatio * 7/8 + tradeRatio^2 * 27",
+      "linear_coeff": "7/8",
+      "quad_coeff": 27,
+      "decay_type": "multiplicative",
+      "decay_factor": "6/7",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 482.17,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": 0.395
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "lin-quad", "low-base", "mult-decay", "fine-tuned", "current-best"]
   }
 ]

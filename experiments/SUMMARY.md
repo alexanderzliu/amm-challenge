@@ -1,23 +1,27 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 012 -->
+<!-- Last synced with experiment: 013 -->
 
 ## Current Best
-- **Strategy**: LinQuad-MultDecay (exp 012), Edge: ~478 (500 sims)
-- **Mechanism**: fee = max(30bps + tradeRatio*0.75 + tradeRatio²*25, prevFee*7/8)
+- **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
+- **Mechanism**: fee = max(24bps + tradeRatio*7/8 + tradeRatio²*27, prevFee*6/7)
 - **File**: my_strategy.sol
 
 ## Established Facts
 1. **Optimal fixed fee is ~75-80 bps** — but dynamic spikes shift this (exp 004)
-2. **With strong spikes, optimal base drops to 30-40 bps** — spikes handle arb, low base captures retail (exp 010)
-3. **Lin+quad spike > pure linear > pure quadratic** — hybrid penalizes large trades more while still reacting to small ones (exp 009)
+2. **With strong spikes, optimal base drops to 24-30 bps** — spikes handle arb, low base captures retail (exp 010, 013)
+3. **Lin+quad spike > pure linear > pure quadratic > piecewise linear** — continuous curve best (exp 009, 013)
 4. **Instant rise + slow decay is optimal** — react instantly to threats, relax gradually (exp 011)
 5. No smoothing at all (instant both ways) is terrible — fee must persist across trades (exp 011)
 6. Arb protection (quadratic) far outweighs retail volume lost to vanilla at high fees
-7. Retail routing is proportional (not winner-take-all) — still get retail even at 2.5x vanilla's fee
+7. Retail routing is optimal splitting (not proportional) — share ∝ sqrt(γ·reserves) (exp 013)
 8. Arb is independent per AMM — wider no-arb band directly reduces losses
 9. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
-10. Price-change-based spike (450) is worse than trade-size-based spike (479) — size is a better signal
-11. Trade activity EMA adds no value on top of the smoothed spike mechanism (exp ~011)
+10. Price-change-based spike is corrupted by fee impact — trade size is the right signal (exp 012, 013)
+11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 013)
+12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
+13. **Seeds are deterministic** — same N seeds always give same result, so comparisons are precise (exp 013)
+14. **Cubic spike term always hurts** — over-penalizes large trades (exp 013)
+15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 013)
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -33,6 +37,7 @@
 | 010 | LinQuad-LowBase | 464 | Base drops to 30 bps with strong spikes |
 | 011 | LinQuad-InstantRise | 479 | Instant rise + 1/5 decay |
 | 012 | LinQuad-MultDecay | 478 | Multiplicative decay (fee*7/8), 500-sim validated |
+| 013 | LinQuad-Tuned | 482 | Fine-tuned params: base 24, quad 27, decay 6/7 |
 
 ## Dead Ends (Do NOT Revisit)
 - Directional fee skew / asymmetric bid-ask from trade direction (exp 003)
@@ -48,15 +53,27 @@
 - Arb cluster detection (adaptive decay) — no improvement (474)
 - Max X/Y ratio — no difference from Y-only (474)
 - Multiplicative spike on current fee — runaway fee inflation (155)
+- Cubic spike term — over-penalizes, always hurts (exp 013)
+- Spike caps (100-500 bps) — limiting spikes loses arb protection (exp 013)
+- Piecewise linear spike — worse than continuous lin+quad (exp 013)
+- Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 013)
+- Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 013)
+- Adaptive base fee (decaying floor) — never activates in practice (exp 013)
+- Trade frequency EMA for regime detection — no value add (exp 013)
+- Two-tier decay (plateau + fast drop) — no improvement (exp 013)
+- Direction-dependent spike coefficients — no improvement (exp 013)
+- Geometric mean of X,Y ratios — same as Y-only (exp 013)
 
 ## Next Experiments (Priority Order)
-1. Explore fundamentally different spike shapes (piecewise, capped, etc.)
-2. Time-based features (use timestamp to detect regime changes)
-3. Reserve-ratio-based signals (track xy=k invariant changes)
-4. Ensemble: blend multiple simple strategies
+1. **New information sources**: The strategy currently only uses trade.amountY, trade.reserveY, and prevFee. Explore what truly novel information can be extracted from the 6 TradeInfo fields.
+2. **Ensemble/switching**: Different strategies for early vs late simulation (warmup then optimize)
+3. **Non-linear decay**: Exponential/polynomial decay curves instead of constant multiplicative
+4. **Fee-dependent spike scaling**: Scale spike inversely with current fee (spike less when already high)
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge
 - Simulation: 10k steps, GBM price (σ ~ U[0.088%, 0.101%]), zero drift
 - Retail: λ ~ U[0.6, 1.0], size ~ LogN(~20, 1.2), 50/50 buy/sell
 - Scoring: edge = profit using fair prices at trade time (retail=positive, arb=negative)
+- Retail volume share at current strategy: ~39.5% (vanilla gets ~60.5%)
+- Our arb volume: ~24k Y vs vanilla's ~52k Y (spikes protect well)

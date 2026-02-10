@@ -146,5 +146,72 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["fixed-fee", "baseline", "sweep", "paradigm-shift"]
+  },
+  {
+    "id": 5,
+    "name": "PropVol No Spikes",
+    "parent_id": 2,
+    "date": "2026-02-10",
+    "hypothesis": "Trade-size spike logic in PropVol may hurt more than it helps — isolate its contribution",
+    "variables_changed": ["spike_removal"],
+    "verdict": "rejected",
+    "insights": [
+      "Spikes help slightly: 374.54 with spikes vs 370.55 without (+4 edge)",
+      "Spike mechanism provides value even in the low-fee PropVol regime",
+      "But both variants are far below optimal fixed 80 bps (385)"
+    ],
+    "params": {
+      "vol_multiplier": 3,
+      "ema_alpha": 0.10,
+      "fee_floor_bps": 15,
+      "spike_large_bps": 0,
+      "spike_medium_bps": 0,
+      "rise_speed": "2/3",
+      "decay_speed": "1/4",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 370.55,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["vol-scaling", "ablation", "no-spikes"]
+  },
+  {
+    "id": 6,
+    "name": "SpikeOnly80",
+    "parent_id": 4,
+    "date": "2026-02-10",
+    "hypothesis": "Fixed 80 bps base with spike-up on large trades can beat pure fixed fee by adding arb protection when it matters most",
+    "variables_changed": ["strategy_paradigm", "base_fee", "spike_mechanism"],
+    "verdict": "confirmed",
+    "insights": [
+      "SpikeOnly80 (398.55) beats Fixed80 (385) by +14 edge — spikes add value on top of high base",
+      "Paradigm shift: abandon vol-tracking EMA, use trade-size-only reactive spikes",
+      "Large trades are predominantly arb — spiking fees after them protects against follow-up arbs",
+      "Base fee insensitive in 70-80 bps range (70→399, 75→399, 80→399)"
+    ],
+    "params": {
+      "base_fee_bps": 80,
+      "spike_large_bps": 40,
+      "spike_medium_bps": 20,
+      "spike_threshold_large": 0.02,
+      "spike_threshold_medium": 0.01,
+      "rise_speed": "2/3",
+      "decay_speed": "1/6",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 398.55,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "high-base", "trade-size-reactive"]
   }
 ]

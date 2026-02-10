@@ -1,9 +1,9 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 004 -->
+<!-- Last synced with experiment: 006 -->
 
 ## Current Best
-- **Strategy**: Fixed80 (exp 004), Edge: 384.97 (500 sims)
-- **Mechanism**: Fixed 80 bps fee — optimal point from sweep of 25-100 bps
+- **Strategy**: SpikeOnly80 (exp 006), Edge: 398.55 (100 sims)
+- **Mechanism**: Fixed 80 bps base, spike to 100-120 bps after large trades, decay back
 - **File**: my_strategy.sol
 
 ## Established Facts

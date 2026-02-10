@@ -4,10 +4,9 @@ pragma solidity ^0.8.24;
 import {AMMStrategyBase} from "./AMMStrategyBase.sol";
 import {IAMMStrategy, TradeInfo} from "./IAMMStrategy.sol";
 
-/// @title LinQuad Spike — Low Base
-/// @notice Base 30 bps + hybrid linear+quadratic spike from trade size.
-///         spike = tradeRatio * 0.75 + tradeRatio² * 25
-///         Rise 2/3, decay 1/3. Low base captures retail, spikes handle arb.
+/// @title LinQuad Spike — Instant Rise, Slow Decay
+/// @notice Base 30 bps + spike = tradeRatio * 0.75 + tradeRatio² * 25.
+///         Instant rise (immediate arb protection), 1/5 decay (sustained defense).
 contract Strategy is AMMStrategyBase {
     // slots[0] = current fee (WAD)
 
@@ -33,9 +32,9 @@ contract Strategy is AMMStrategyBase {
         uint256 targetFee = baseFee + spike;
 
         if (targetFee > fee) {
-            fee = fee + (targetFee - fee) * 2 / 3;
+            fee = targetFee;  // instant rise
         } else {
-            fee = fee - (fee - targetFee) / 3;
+            fee = fee - (fee - targetFee) / 5;  // slow decay
         }
 
         fee = clampFee(fee);
@@ -46,6 +45,6 @@ contract Strategy is AMMStrategyBase {
     }
 
     function getName() external pure override returns (string memory) {
-        return "LinQuad-LowBase";
+        return "LinQuad-InstRise";
     }
 }

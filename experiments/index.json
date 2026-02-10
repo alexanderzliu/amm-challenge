@@ -213,5 +213,39 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["spike-only", "high-base", "trade-size-reactive"]
+  },
+  {
+    "id": 7,
+    "name": "SpikeOnly75-4T",
+    "parent_id": 6,
+    "date": "2026-02-10",
+    "hypothesis": "More spike tiers with larger magnitudes improve arb protection — bigger spikes = more edge",
+    "variables_changed": ["num_tiers", "spike_magnitudes", "base_fee", "decay_speed"],
+    "verdict": "confirmed",
+    "insights": [
+      "Multi-tier spikes (422) beat 2-tier (399) by +23 edge — granularity matters",
+      "Bigger spike magnitudes help: +40/+20 bps → +300/+200/+150/+75/+25 bps",
+      "Faster decay (1/4 vs 1/6) is better — spike should be short-lived",
+      "Base 75 bps slightly better than 80 (both ~399 in 2-tier, 75 chosen for 4-tier)",
+      "Progression: 2-tier +40/+20→399, 3-tier +200/+150/+75→417, 4-tier +300/+200/+150/+75/+25→422"
+    ],
+    "params": {
+      "base_fee_bps": 75,
+      "num_tiers": 5,
+      "spike_tiers_bps": [25, 75, 150, 200, 300],
+      "spike_thresholds": [0.005, 0.01, 0.02, 0.03, 0.05],
+      "rise_speed": "2/3",
+      "decay_speed": "1/4",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 422.12,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-only", "high-base", "multi-tier", "aggressive-spikes"]
   }
 ]

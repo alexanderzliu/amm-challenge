@@ -1,9 +1,9 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 006 -->
+<!-- Last synced with experiment: 007 -->
 
 ## Current Best
-- **Strategy**: SpikeOnly80 (exp 006), Edge: 398.55 (100 sims)
-- **Mechanism**: Fixed 80 bps base, spike to 100-120 bps after large trades, decay back
+- **Strategy**: SpikeOnly75-4T (exp 007), Edge: 422.12 (100 sims)
+- **Mechanism**: 75 bps base, 5-tier spikes (+25 to +300 bps) based on trade size, fast decay
 - **File**: my_strategy.sol
 
 ## Established Facts

@@ -1,0 +1,118 @@
+[
+  {
+    "id": 1,
+    "name": "AdaptiveDynamic v1",
+    "parent_id": null,
+    "date": "2026-02-10",
+    "hypothesis": "Dual-signal volatility tracking (price EMA + trade size EMA) with additive fee adjustment outperforms fixed fees",
+    "variables_changed": ["initial_design"],
+    "verdict": "confirmed_but_superseded",
+    "insights": [
+      "Dynamic fees can beat vanilla baseline (~347 vs vanilla 250-350)",
+      "Dual EMA signals dilute the stronger signal — net negative vs single signal",
+      "Decay at 20% per trade may be too slow, keeping fees elevated unnecessarily",
+      "Combined vol signal averaging two EMAs adds complexity without benefit"
+    ],
+    "params": {
+      "base_fee_bps": 20,
+      "initial_fee_bps": 25,
+      "vol_scaling": "volSignal * 2/5",
+      "spike_large_bps": 15,
+      "spike_medium_bps": 8,
+      "spike_threshold_large": 0.02,
+      "spike_threshold_medium": 0.01,
+      "price_ema_alpha": 0.05,
+      "trade_size_ema_alpha": 0.10,
+      "rise_speed": "1/2",
+      "decay_speed": "1/5",
+      "fee_floor_bps": 8,
+      "symmetric": true
+    },
+    "results": {
+      "edge": 346.87,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["vol-scaling", "dual-signal", "additive", "symmetric"]
+  },
+  {
+    "id": 2,
+    "name": "PropVol",
+    "parent_id": 1,
+    "date": "2026-02-10",
+    "hypothesis": "Fee proportional to realized volatility (fee = k * sigma) with single EMA outperforms dual-signal additive approach",
+    "variables_changed": ["fee_formula", "num_signals", "ema_alpha", "fee_floor", "spike_magnitudes", "rise_speed", "decay_speed", "vol_seed"],
+    "verdict": "confirmed",
+    "insights": [
+      "Simpler single-signal approach (price EMA only) outperforms dual-signal by +8%",
+      "Linear fee-proportional-to-sigma is theoretically grounded and works empirically",
+      "Wider dynamic range (15-90 bps) helps: aggressive undercutting in calm + strong defense in volatile",
+      "Faster EMA (alpha=0.1 vs 0.05) reacts to regime changes quicker",
+      "Seeding EMA at 1e15 (~0.1%) gives stable 30 bps start instead of floor"
+    ],
+    "params": {
+      "vol_multiplier": 3,
+      "ema_alpha": 0.10,
+      "fee_floor_bps": 15,
+      "spike_large_bps": 20,
+      "spike_medium_bps": 10,
+      "spike_threshold_large": 0.02,
+      "spike_threshold_medium": 0.01,
+      "rise_speed": "2/3",
+      "decay_speed": "1/4",
+      "initial_ema_vol": "1e15",
+      "symmetric": true
+    },
+    "results": {
+      "edge": 374.54,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["vol-scaling", "single-ema", "proportional", "symmetric", "current-best"]
+  },
+  {
+    "id": 3,
+    "name": "DirSkew",
+    "parent_id": 2,
+    "date": "2026-02-10",
+    "hypothesis": "Directional asymmetric fees (protect trending side, discount safe side) outperform symmetric PropVol",
+    "variables_changed": ["fee_symmetry", "direction_ema", "fee_floor"],
+    "verdict": "rejected",
+    "insights": [
+      "Directional skew had zero meaningful impact (374.21 vs 374.54)",
+      "GBM random walk has no persistent trends — direction EMA stays near neutral",
+      "Router neutralizes asymmetric fee benefit: retail is 50/50 buy/sell",
+      "Added complexity (5 slots vs 3) for no gain — confirms simpler is better"
+    ],
+    "params": {
+      "vol_multiplier": 3,
+      "ema_alpha": 0.10,
+      "fee_floor_bps": 10,
+      "spike_large_bps": 20,
+      "spike_medium_bps": 10,
+      "spike_threshold_large": 0.02,
+      "spike_threshold_medium": 0.01,
+      "rise_speed": "2/3",
+      "decay_speed": "1/4",
+      "initial_ema_vol": "1e15",
+      "symmetric": false,
+      "direction_ema_alpha": 0.05,
+      "max_skew_bps": 12
+    },
+    "results": {
+      "edge": 374.21,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["vol-scaling", "single-ema", "proportional", "asymmetric", "directional"]
+  }
+]

@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 016 -->
+<!-- Last synced with experiment: 017 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -16,7 +16,7 @@
 7. Retail routing is optimal splitting (not proportional) — share ∝ sqrt(γ·reserves) (exp 013)
 8. Arb is independent per AMM — wider no-arb band directly reduces losses
 9. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
-10. Price-change-based spike is corrupted by fee impact — trade size is the right signal (exp 012, 013)
+10. Price-change-based spike is corrupted by fee impact — trade size is the right signal (exp 012, 017)
 11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 013)
 12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
 13. **Seeds are deterministic** — same N seeds always give same result, so comparisons are precise (exp 013)
@@ -58,7 +58,7 @@
 - Spike caps (100-1000 bps) — limiting spikes loses arb protection (exp 016)
 - Piecewise linear spike — worse than continuous lin+quad (exp 016)
 - Sqrt-based spike — catastrophically over-reactive (89-367 edge, exp 016)
-- Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 013)
+- Realized vol from spot prices — corrupted by trade impact, catastrophic (294 edge, exp 017)
 - Gap-aware per-step decay — worse than per-trade decay (463 vs 482, exp 013)
 - Adaptive base fee (decaying floor) — never activates in practice (exp 013)
 - Trade frequency EMA for regime detection — no value add (exp 013)

@@ -722,5 +722,44 @@
       "sqrt",
       "rejected"
     ]
+  },
+  {
+    "id": 17,
+    "name": "RealizedVolSpotPrice",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Tracking realized volatility from spot price changes (reserveY/reserveX) between trades can provide a vol-aware base fee",
+    "variables_changed": [
+      "vol_tracking",
+      "base_fee_formula"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Catastrophic failure: edge dropped to 294 (vs 482 baseline)",
+      "Spot price changes between trades include the fee impact itself \u2014 corrupted signal",
+      "Vol bonus pushed fees way too high, losing almost all retail flow",
+      "Confirms exp 012 finding: trade price changes are NOT a reliable vol proxy",
+      "The fundamental problem: we observe post-trade reserves, not fair price"
+    ],
+    "params": {
+      "vol_ema_alpha": "1/8",
+      "vol_scaling": "5x realized vol added to base",
+      "base_fee_bps": "30 + volBonus",
+      "base_fee_cap_bps": 200
+    },
+    "results": {
+      "edge": 294.18,
+      "win_rate": null,
+      "n_simulations": 100,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "vol-tracking",
+      "spot-price",
+      "catastrophic",
+      "rejected"
+    ]
   }
 ]

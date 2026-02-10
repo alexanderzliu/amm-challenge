@@ -635,5 +635,48 @@
       "cubic",
       "rejected"
     ]
+  },
+  {
+    "id": 15,
+    "name": "RatioVariants",
+    "parent_id": 13,
+    "date": "2026-02-10",
+    "hypothesis": "Using max(amountX/reserveX, amountY/reserveY) or geometric mean instead of Y-only ratio captures trade impact better",
+    "variables_changed": [
+      "trade_ratio_formula"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "max(X,Y) ratio: 484\u2192478 at 500 sims \u2014 no improvement over Y-only",
+      "X-only ratio: 485 at 100 sims \u2014 within noise",
+      "avg(X,Y) ratio: 485 at 100 sims \u2014 within noise",
+      "Geometric mean sqrt(ratioX*ratioY): 485 at 100 sims \u2014 within noise",
+      "Direction-dependent ratio (X for buys, Y for sells): validation parse error, then no improvement",
+      "For constant-product AMMs, X and Y ratios are mathematically related \u2014 choosing one over another doesn't matter"
+    ],
+    "params": {
+      "variants_tested": [
+        "Y-only",
+        "X-only",
+        "max(X,Y)",
+        "avg(X,Y)",
+        "geomean(X,Y)",
+        "direction-dependent"
+      ],
+      "base_fee_bps": 30,
+      "n_sims_per_variant": "100-500"
+    },
+    "results": {
+      "edge": 478.0,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "ratio-formula",
+      "rejected"
+    ]
   }
 ]

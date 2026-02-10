@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 019 -->
+<!-- Last synced with experiment: 020 -->
 
 ## Current Best
 - **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
@@ -23,6 +23,7 @@
 14. **Cubic spike term always hurts** — over-penalizes large trades (exp 014)
 15. **Spike caps hurt** — unbounded spikes are essential for arb protection (exp 016)
 16. **Ratio formula doesn't matter** — Y-only, X-only, max, avg, geomean all equivalent for CPMM (exp 015)
+17. **Spike stacking hurts** — max(fresh, decayed) beats additive/dampened stacking (exp 020)
 19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018) (exp 013)
 
 ## Evolution of Edge
@@ -68,6 +69,8 @@
 - Sub-base undercutting floors — unreachable, no effect (exp 019)
 - Direction-dependent spike coefficients — no improvement (exp 015)
 - Geometric mean / max / avg of X,Y ratios — all same as Y-only (exp 015)
+- Dampened spike stacking — worse with more stacking (exp 020)
+- Additive spike stacking — inflates fees, loses retail (exp 020)
 
 ## Next Experiments (Priority Order)
 1. **New information sources**: The strategy currently only uses trade.amountY, trade.reserveY, and prevFee. Explore what truly novel information can be extracted from the 6 TradeInfo fields.

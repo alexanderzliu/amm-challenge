@@ -1198,5 +1198,45 @@
       "spot-price",
       "rejected"
     ]
+  },
+  {
+    "id": 27,
+    "name": "ModerateContrarian",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Capping the opposite spike at a moderate level or using two-level base fees (different floor for same vs opposite side) might retain more retail from both directions while maintaining arb protection",
+    "variables_changed": [
+      "spike_cap",
+      "two_level_base"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Spike caps devastate performance: Cap50→380, Cap100→426, Cap200→462, Cap500→489 — confirms exp016 finding even in DirContrarian context",
+      "Two-level base floors (different sameBase vs oppBase) don't help: TL20_30→494, TL22_30→494, TL24_30→494, all worse than single base=24",
+      "Higher opposite base (35-40 bps) actively hurts: TL20_35→491, TL24_40→488 — the opposite side needs to decay to 24 bps to attract retail",
+      "Asymmetric base floors between same-side and opposite-side are strictly worse",
+      "Alternative spike params in two-level structure (more quad, less lin) don't help: TL20_30_l1q20→493",
+      "Faster decay (6/7) in two-level structure doesn't help: TL20_35_d67→492",
+      "Unbounded spikes remain essential — even Cap500 loses 8 edge points vs uncapped"
+    ],
+    "params": {
+      "configs_tested": 15,
+      "cap_values": [50, 100, 200, 500],
+      "two_level_combos": "same_base=[18,20,22,24], opp_base=[30,35,36,40]"
+    },
+    "results": {
+      "edge": 496.84,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "spike-cap",
+      "two-level",
+      "base-fee",
+      "rejected"
+    ]
   }
 ]

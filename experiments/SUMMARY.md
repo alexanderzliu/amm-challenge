@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 026 -->
+<!-- Last synced with experiment: 027 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -37,6 +37,8 @@
 27. **DirContrarian prefers stronger linear (5/4), weaker quad (15), slower decay (8/9)** than symmetric baseline (7/8, 27, 6/7) (exp 025)
 28. **Any same-direction spike component hurts** — hybrid same=10%: 496, same=25%: 495, same=50%: 491. Pure contrarian optimal. (exp 025)
 29. **DirContrarian at ~497 is a robust local optimum** — 30+ enhancement variants tested (timing, asymmetric decay/base, sigma adaptation, spot tracking, reserve scaling, size switching, direction-specific coefficients), NONE beat it at 500 sims (exp 026)
+30. **Spike caps hurt even in DirContrarian** — Cap50→380, Cap500→489, confirming unbounded spikes essential (exp 027)
+31. **Two-level base (sameBase≠oppBase) doesn't help** — opposite side must decay to same 24 bps base for retail capture (exp 027)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -127,6 +129,9 @@
 - DirContrarian + asymmetric decay rates — within noise (497.04, exp 026)
 - DirContrarian + ultra-low same-side base (18 or 0 bps) — no improvement (exp 026)
 - DirContrarian + size-based contrarian/symmetric switching — worse (exp 026)
+- Spike caps on DirContrarian: Cap50→380, Cap100→426, Cap200→462, Cap500→489 — unbounded spikes essential (exp 027)
+- Two-level base floors (sameBase≠oppBase): TL20_30→494, TL24_35→491, TL24_40→488 — all worse than single base=24 (exp 027)
+- Higher opposite-side base floor (30-40 bps) — opposite must decay to 24 to attract retail (exp 027)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

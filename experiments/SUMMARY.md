@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 034 -->
+<!-- Last synced with experiment: 037 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -49,6 +49,10 @@
 39. **max(fresh, decayed) is the optimal update rule** — no-memory (382), blend (456), additive (488), replace (382) all worse. Persistence between steps is essential (exp 034)
 40. **Retail share is only 42.7%** despite 24 bps base (vs vanilla 30) — spiked opposite side loses all retail, dominating the fee advantage on same side (exp analysis)
 41. **Edge decomposes as: ~502 = retail_income + arb_losses** with arb vol ~25.5K (half vanilla's 50.2K) and retail vol ~69.7K (exp analysis)
+42. **Size-threshold spike can't distinguish arb from retail** — small thresholds equivalent, large thresholds miss arbs. No benefit (exp 035)
+43. **DC params are at a global optimum** — 4D grid search (71 combos) confirms base=24, lin=5/4, quad=15, decay=8/9 is the flat plateau peak (exp 036)
+44. **Edge = -arb_profit + retail_price_extraction** — edge is NOT fee income but trade-level extraction vs fair price. Fees affect routing and execution, not edge directly (analysis)
+45. **Per-step execution**: arb → afterSwap → retail1 → afterSwap → retail2 → afterSwap. Each afterSwap affects next retail order's routing. ~28% of steps have 2+ retail orders (analysis)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -172,6 +176,17 @@
 - 50/50 blend of fresh and decayed — 456, averaging weakens both protection and persistence (exp 034)
 - Additive update (decayed + spike) — 488, max() is strictly better (exp 034)
 - Direction counting for spike amplification — 462, complexity without benefit (exp 034)
+- Size-threshold spike (0.1-1% cutoff) — can't distinguish arb from retail (exp 035)
+- Two-tier spike (full arb, weak retail) — equivalent to baseline (exp 035)
+- Higher base + arb-only spike (28-30 bps) — within noise (exp 035)
+- Fast post-retail decay (2/3, 3/4) — breaks arb protection (482-493, exp 035)
+- X-based trade ratio — identical to Y-based for CPMM (exp 035)
+- 4D grid search confirms current params are globally optimal (exp 036)
+- Timestamp-aware decay (per-step) — slightly worse, fee stays high within step (exp 037)
+- Within-step no-respike — 504.91, within noise (exp 037)
+- Reserve deviation spike bonus — catastrophic as always (299, exp 037)
+- Bid premium (same-side +3 bps) — within noise (exp 037)
+- Multiplicative spike formula — too weak for large trades (351, exp 037)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

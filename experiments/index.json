@@ -1435,5 +1435,72 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["update-rule", "no-memory", "additive", "rejected"]
+  },
+  {
+    "id": 35,
+    "name": "SizeDiscriminateSpike",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Size-threshold spike (only spike on arb-sized trades) could improve retail capture without hurting arb protection",
+    "variables_changed": ["size_threshold", "two_tier", "fast_retail_decay", "same_side_bump"],
+    "verdict": "rejected",
+    "insights": [
+      "Small thresholds (0.1-0.2%) equivalent to baseline — can't distinguish arb from retail",
+      "Large thresholds (0.5-1%) miss small arbs — catastrophic (442-484)",
+      "Higher base + arb-only spike (base=28-30): 502-503, within noise",
+      "Fast post-retail decay (2/3, 3/4): 482-493, breaks arb protection",
+      "Same-side small bump (1/8, 1/4 of spike): 500-502, within noise",
+      "X-based trade ratio (amountX/reserveX): 503, equivalent to Y-based",
+      "Regime detection (large trade counter): 497, adds complexity without benefit"
+    ],
+    "params": {"n_variants_tested": 18},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["size-threshold", "two-tier", "arb-detection", "rejected"]
+  },
+  {
+    "id": 36,
+    "name": "ComprehensiveParamGrid",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "4D grid search (base × linear × quadratic × decay) might find a better local optimum than sequential tuning",
+    "variables_changed": ["base", "linear_coef", "quadratic_coef", "decay_rate"],
+    "verdict": "rejected",
+    "insights": [
+      "Phase 1 (lin×quad, 49 combos): top 10 all within 491.1-491.7 at 50 sims — extremely flat",
+      "Best lin/quad confirmed: lin=5/4, quad=15 (current params)",
+      "Phase 2 (decay sweep): 7/8 and 8/9 tied at top (491.7-491.8)",
+      "Phase 3 (base sweep): base 22-25 all within 491.6-491.9 — flat plateau",
+      "500-sim validation: best combo (b23/l5d4/q15/d7_8) = 497.11 vs current 496.84",
+      "CONCLUSION: current params are at a global optimum within the DC framework. The 4D landscape is very flat near the peak."
+    ],
+    "params": {"grid_size": "49+13+9=71 combos at 50 sims"},
+    "results": {"edge": 497.11, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["grid-search", "parameter-optimization", "rejected"]
+  },
+  {
+    "id": 37,
+    "name": "TwoStateNovel",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Novel mechanisms: timestamp-aware decay, within-step no-respike, reserve-deviation, bid premium, proportional same-side, multiplicative spike",
+    "variables_changed": ["timestamp_decay", "no_respike", "reserve_deviation", "bid_premium", "spike_formula"],
+    "verdict": "rejected",
+    "insights": [
+      "Timestamp-aware decay (per-step not per-trade): 499.65, slightly worse",
+      "No within-step respike: 504.91, within noise but interesting direction",
+      "Reserve deviation bonus: 299.67, catastrophic as always",
+      "Bid premium (same-side +3 bps): 502.8, within noise",
+      "Proportional same-side (spike/10, /20, /5): 501-502, within noise (also tested in exp 033)",
+      "Multiplicative spike (base × (1+50×tr)): 351.25, too weak for large trades"
+    ],
+    "params": {"n_variants_tested": 9},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["timestamp-decay", "no-respike", "multiplicative", "rejected"]
   }
 ]

@@ -1389,5 +1389,51 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["spike-formula", "decay-rate", "rejected"]
+  },
+  {
+    "id": 33,
+    "name": "InferredVolGrid",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Vol-adaptive base, ultra-low base, split decay, or 70/30 hybrid could improve. Symmetric grid with different params might also work.",
+    "variables_changed": ["vol_adaptive", "ultra_low_base", "decay_split", "symmetric_grid"],
+    "verdict": "rejected",
+    "insights": [
+      "Vol-adaptive base (EMA of returns): 494 — adds noise, slightly worse",
+      "Ultra-low base 15 bps: 499 — more retail but worse arb protection, net wash",
+      "Split decay (fast same 6/7, slow opp 14/15): 503 — within noise",
+      "70/30 split (30% same spike): 487 — confirmed any same-side spike hurts",
+      "Half contrarian (50% same spike): 497 — also within noise/worse",
+      "Symmetric grid exhausted: best symmetric=488, always ~15 pts behind DC"
+    ],
+    "params": {"n_variants_tested": 14},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["vol-adaptive", "decay-split", "symmetric-grid", "rejected"]
+  },
+  {
+    "id": 34,
+    "name": "NoMemoryUpdateRules",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Alternative fee update rules (no memory, blend, additive, fresh-only, replace) could break the max(fresh, decayed) paradigm",
+    "variables_changed": ["update_rule"],
+    "verdict": "rejected",
+    "insights": [
+      "No memory (pure fresh): 382 — catastrophic, no persistence between steps",
+      "50/50 blend of fresh and decayed: 456 — averaging reduces both spike and persistence",
+      "Fresh same-side: 355 — same side spikes after arb, terrible for retail",
+      "Additive (decayed + spike): 488 — decent but max() is better",
+      "Replace (always fresh, no decay): 382 — same as no memory",
+      "Symmetric moderate (base=36, weak spike, slow decay): 445 — inferior symmetric",
+      "Direction counting (boost spike on consecutive same-dir): 462 — adds complexity, worse",
+      "FUNDAMENTAL: max(fresh, decayed) IS the optimal update rule. Persistence between steps is essential. The 8/9 decay rate is well-calibrated."
+    ],
+    "params": {"n_rules_tested": 8},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["update-rule", "no-memory", "additive", "rejected"]
   }
 ]

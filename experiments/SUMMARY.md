@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 032 -->
+<!-- Last synced with experiment: 034 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -46,6 +46,9 @@
 36. **Optimal constant fee is ~75-80 bps** — constant fee landscape is monotonically increasing up to 75-80 range (exp 031)
 37. **Revenue per order = share × fee is maximized at ~36 bps** but DC at 24 still beats DC at 36 due to routing volume advantage (exp 031)
 38. **Lin+quad spike formula is well-optimized** — pure quad (410), pure linear (485), geometric mean (323) all worse. Fast/slow decay variants within noise (exp 032)
+39. **max(fresh, decayed) is the optimal update rule** — no-memory (382), blend (456), additive (488), replace (382) all worse. Persistence between steps is essential (exp 034)
+40. **Retail share is only 42.7%** despite 24 bps base (vs vanilla 30) — spiked opposite side loses all retail, dominating the fee advantage on same side (exp analysis)
+41. **Edge decomposes as: ~502 = retail_income + arb_losses** with arb vol ~25.5K (half vanilla's 50.2K) and retail vol ~69.7K (exp analysis)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -161,6 +164,14 @@
 - Fast decay (2/3) in DC — 477, spike doesn't persist (exp 032)
 - Geometric mean of X/Y trade ratios — 323, Y-only is correct (exp 032)
 - Spike persistence via max(current, prev) — 493, too persistent (exp 032)
+- Vol-adaptive base (EMA of returns) — 494, adds noise (exp 033)
+- Ultra-low base 15 bps — 499, more retail but worse arb protection (exp 033)
+- Split decay (fast same, slow opp) — 503, within noise (exp 033)
+- 70/30 and 50/50 same-side spike fraction — 487 and 497, any same-side hurts (exp 033)
+- No memory / pure fresh fee — 382, no persistence between steps = catastrophic (exp 034)
+- 50/50 blend of fresh and decayed — 456, averaging weakens both protection and persistence (exp 034)
+- Additive update (decayed + spike) — 488, max() is strictly better (exp 034)
+- Direction counting for spike amplification — 462, complexity without benefit (exp 034)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

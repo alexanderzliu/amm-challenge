@@ -1,9 +1,9 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 024 -->
+<!-- Last synced with experiment: 025 -->
 
 ## Current Best
-- **Strategy**: LinQuad-Tuned (exp 013), Edge: ~482 (500 sims)
-- **Mechanism**: fee = max(24bps + tradeRatio*7/8 + tradeRatio²*27, prevFee*6/7)
+- **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
+- **Mechanism**: Separate bid/ask fees. After trade in direction D, spike OPPOSITE direction only, decay same direction. fee_spike = 24bps + tradeRatio*5/4 + tradeRatio²*15, decay 8/9
 - **File**: my_strategy.sol
 - **Target**: 525+ (known to be achievable)
 
@@ -16,7 +16,7 @@
 6. Arb protection (quadratic) far outweighs retail volume lost to vanilla at high fees
 7. Retail routing is optimal splitting (not proportional) — share ∝ sqrt(γ·reserves) (exp 013)
 8. Arb is independent per AMM — wider no-arb band directly reduces losses
-9. Directional asymmetric fees provide no benefit against GBM random walk (exp 003)
+9. ~~Directional asymmetric fees provide no benefit against GBM random walk (exp 003)~~ **SUPERSEDED by exp 025**: contrarian directional spike IS beneficial (+15 edge)
 10. Price-change-based spike is corrupted by fee impact — trade size is the right signal (exp 012, 017)
 11. Trade activity EMA adds no value on top of trade-size spike mechanism (exp 011, 018)
 12. **Retail volume share is ~39.5%** — vanilla captures 60% due to our spikes raising avg fee (exp 013)
@@ -28,16 +28,21 @@
 18. **k-invariant growth is too slow** to provide useful intra-simulation signal (exp 021)
 19. **Timestamp features add nothing** — gap decay, frequency EMA, early/late switching all neutral (exp 018)
 20. **Reserve deviation signals add nothing** — as base bonus or decay modifier, zero effect (exp 022)
-21. **Spike+decay paradigm is exhausted** — 22 experiments, 8+ variants on the theme, all converge to ~482 (exp 014-022)
-22. **Base=24 is globally optimal** across ALL spike/decay combos. 4D grid search at 500 sims confirms. Higher bases always worse. (exp 023)
+21. ~~Spike+decay paradigm is exhausted~~ **SUPERSEDED**: Directional contrarian spike breaks the ~482 ceiling → 497 (exp 025)
+22. **Base=24 is globally optimal** across ALL spike/decay combos, including DirContrarian (exp 023, 025)
 23. **Smooth EMA fee fails** — fee must react instantly to arbs. Any smoothing loses arb protection (exp 023)
 24. **Floor above vanilla has zero effect** — fee rarely drops below 31 bps between arb events anyway (exp 023)
+25. **Router uses bid_fee/ask_fee SEPARATELY** — buy orders use ask_fee, sell orders use bid_fee. This creates an exploitable asymmetry. (exp 025)
+26. **Contrarian spike is strictly better than same-direction or symmetric** — spike opposite direction: 497, spike same: 302, symmetric: 482 (exp 025)
+27. **DirContrarian prefers stronger linear (5/4), weaker quad (15), slower decay (8/9)** than symmetric baseline (7/8, 27, 6/7) (exp 025)
+28. **Any same-direction spike component hurts** — hybrid same=10%: 496, same=25%: 495, same=50%: 491. Pure contrarian optimal. (exp 025)
 
-## Critical Architecture Insights (exp 022)
+## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
-- **Fee separation**: Fees go to a separate bucket, NOT reserves. Both AMMs maintain ~identical reserves throughout. Retail routing depends on fee*reserves, but reserve difference is negligible.
+- **Directional exploit**: Router evaluates bid_fee and ask_fee independently for buy/sell orders. By spiking only the OPPOSITE direction's fee after a trade, half of retail sees the low (decayed) fee while the spiked direction provides arb protection with 50% probability.
+- **Fee separation**: Fees go to a separate bucket, NOT reserves. k = x*y is preserved exactly. Both AMMs maintain identical k throughout. Retail routing depends on fee alone (A_i = sqrt(k * gamma_i)).
 - **Routing sensitivity**: At 24 vs 30 bps, we capture ~57% of retail. At 500 bps spike, we capture 0% retail. Weighted average = 39.5%.
-- **The fundamental tension**: Spike protects against arb (quadratic gain) but destroys retail capture (linear loss). Net positive, but the mechanism caps at ~482.
+- **The fundamental tension**: Spike protects against arb (quadratic gain) but destroys retail capture (linear loss). DirContrarian partially resolves this by splitting the spike across directions.
 
 ## Evolution of Edge
 | Exp | Strategy | Edge | Key Change |
@@ -54,9 +59,10 @@
 | 011 | LinQuad-InstantRise | 479 | Instant rise + 1/5 decay |
 | 012 | LinQuad-MultDecay | 478 | Multiplicative decay (fee*7/8), 500-sim validated |
 | 013 | LinQuad-Tuned | 482 | Fine-tuned params: base 24, quad 27, decay 6/7 |
+| 025 | DirContrarian | 497 | **Contrarian directional bid/ask spike** |
 
 ## Dead Ends (Do NOT Revisit)
-- Directional fee skew / asymmetric bid-ask from trade direction (exp 003)
+- ~~Directional fee skew / asymmetric bid-ask from trade direction (exp 003)~~ — NOTE: exp 003 tested SAME-direction skew which failed. CONTRARIAN direction works! (exp 025)
 - Dual EMA signals blended together (exp 001)
 - Low-fee undercutting of vanilla without spikes — arb protection matters more
 - High-floor vol-EMA (HiBase-VolAdj) — miscalibrated vol baseline (137 edge)
@@ -64,7 +70,7 @@
 - Price-change spike — trade size is a better reactive signal (450 vs 479)
 - Trade activity EMA on top of smoothed spike — no improvement
 - No smoothing (instant fee) — terrible without memory (396)
-- Asymmetric bid/ask fees — hurts significantly (405 vs 474) under GBM
+- **Same-direction spike** — spikes the fee retail uses, catastrophic (302 edge, exp 025)
 - Vol-regime-aware base fee — corrupted signal from trade price changes (456 vs 474)
 - Arb cluster detection (adaptive decay) — no improvement (474)
 - Max X/Y ratio — no difference from Y-only (474)
@@ -102,6 +108,11 @@
 - Hybrid saturating bonus on lin+quad — inflates retail fee (exp 024)
 - Price-change spike — catastrophic, corrupted by fee (exp 024)
 - Partial spike stacking (1/4 decayed excess) — within noise (exp 024)
+- TimingSwitch binary arb/retail detection — too noisy, 324-400 edge (exp 025)
+- Sigma-adaptive base fee — adds noise, 480 edge (exp 025)
+- Two-phase temporal strategy — no improvement (exp 025)
+- Reserve-ratio fee scaling — catastrophic (80 edge, exp 025)
+- Hybrid contrarian+same spike — any same-direction component hurts (exp 025)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)
@@ -111,14 +122,15 @@
 - Higher consistent fee preserves reserves (k) better → routing advantage
 - Simple base raise doesn't work — must achieve this through different mechanism
 
-## Next Experiments — PARADIGM SHIFT NEEDED
-The spike+decay paradigm AND higher-base approach are both exhausted at ~482. To reach 525+:
+## Next Experiments
+DirContrarian broke the 482 ceiling to 497. To reach 525+:
 
-1. **Fundamentally different fee function**: Not spike+decay but a continuous function of state. The winner likely doesn't use our spike-then-decay pattern at all. Could use fee = f(EMA of trade ratios) with no spike/decay separation.
-2. **Reserve-based fee**: fee ∝ sqrt(k_initial/k_current) — tracks reserve depletion directly. As reserves shrink from arb, fee rises to protect remaining reserves.
-3. **Exploit k-preservation feedback**: Higher consistent fee → better k → more retail from routing → more edge → self-reinforcing cycle. Need to find the mechanism that bootstraps this cycle.
-4. **Per-simulation sigma estimation**: σ varies per sim. Estimate from cumulative price drift and set fee = c*σ optimally per sim.
-5. **Nonlinear routing advantage**: Explore whether there's a sweet spot where fee = vanilla+ε captures disproportionately more retail due to reserve size advantage.
+1. **Combine DirContrarian with timing detection**: After arb detection (first large trade of step), drop BOTH fees to base for retail capture. Set high contrarian fee at end of step for next arb.
+2. **Asymmetric spike coefficients by direction**: isBuy spike might benefit from different lin/quad than isSell spike.
+3. **Adaptive contrarian**: Use trade-size EMA to adjust the contrarian spike strength. High vol → stronger opposite spike.
+4. **Multi-slot state**: Track separate decay state per direction with different decay rates.
+5. **DirContrarian + reserve ratio**: Scale contrarian spike by reserve imbalance (larger spike when reserves are more displaced).
+6. **Per-sim σ estimation**: Estimate σ from arb trade ratios, scale spike accordingly.
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge
@@ -130,3 +142,4 @@ The spike+decay paradigm AND higher-base approach are both exhausted at ~482. To
 - **Sim order per step**: GBM price → arb trades (both AMMs) → retail trades (routed)
 - **Fee timing**: afterSwap returns fee for NEXT trade, not current
 - **Fee accrual**: Separate bucket, does NOT increase reserves/k
+- **Router**: Uses bid_fee for sell orders, ask_fee for buy orders (independently)

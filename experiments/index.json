@@ -1340,5 +1340,54 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["paradigm-search", "oscillating", "predictive", "accumulator", "delayed", "rejected"]
+  },
+  {
+    "id": 31,
+    "name": "OptimalRetailFee",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Revenue = share × fee is maximized around 36 bps. Constant fee at optimal point, symmetric spike at higher base, or asymmetric same-side bump could improve.",
+    "variables_changed": ["constant_fee", "symmetric_base", "same_side_bump"],
+    "verdict": "rejected",
+    "insights": [
+      "Constant fee landscape: monotonically increasing 28→346, 50→380, 75→392. Optimal fixed ~75-80 bps (confirms exp004)",
+      "Symmetric spike at base 30 with various spike params: 473-481, all worse than DC 503",
+      "DC at low bases (16-22): 500-503, same as base 24 within noise",
+      "Asymmetric same-side bump (constant 2-4 bps): within noise of baseline",
+      "Proportional same-side spike (1/8 to 1/2 of opposite): gets worse with higher fraction (confirming exp025)",
+      "Revenue per order IS maximized at ~36 bps, but routing loss outweighs revenue gain in practice",
+      "The DirContrarian advantage over symmetric is entirely from post-arb retail capture"
+    ],
+    "params": {"constant_fees_tested": [28,30,32,33,34,35,36,38,40,50,60,75]},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["retail-fee", "constant-fee", "symmetric", "rejected"]
+  },
+  {
+    "id": 32,
+    "name": "AlternativeSpikeFormulas",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Different spike functional forms (pure quadratic, pure linear, geometric mean, reserve-based) or decay rates could improve DirContrarian",
+    "variables_changed": ["spike_formula", "decay_rate"],
+    "verdict": "rejected",
+    "insights": [
+      "Pure quadratic spike: 410 — needs linear component for small trades",
+      "Pure linear spike: 485 — needs quadratic for large trade protection",
+      "Fast decay (2/3): 477 — spike doesn't persist long enough between steps",
+      "Bigger spike + faster decay: 392 — over-spikes too much",
+      "Geometric mean of X/Y trade ratios: 323 — Y-only ratio is correct",
+      "Reserve deviation scaling: 496 — no improvement",
+      "Slow decay (9/10): 502 — same as 8/9 within noise",
+      "Asymmetric decay (fast same, slow opposite): 503 — same as uniform within noise",
+      "Spike persistence via max(current, decayed_previous): 493 — too persistent",
+      "Current lin+quad spike formula is well-optimized for DirContrarian"
+    ],
+    "params": {"n_formulas_tested": 9},
+    "results": {"edge": 496.84, "win_rate": null, "n_simulations": 500},
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["spike-formula", "decay-rate", "rejected"]
   }
 ]

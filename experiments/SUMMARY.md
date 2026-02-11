@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 030 -->
+<!-- Last synced with experiment: 032 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -43,6 +43,9 @@
 33. **Fee-level routing advantage is negligible (0.015%)** — k-preservation from spike protection is what drives our ~57% retail share, not fee undercutting (exp 029)
 34. **Same-side decay memory is critical** — resetting same side to base each trade → 390 edge; setting same=30 (match vanilla) → 403 edge (exp 029)
 35. **All alternative fee paradigms fail** — oscillating, predictive, accumulator, delayed, high-default, reverse-decay all worse than DirContrarian. Fee must be simultaneously high for arb and low for retail; DC's bid/ask split is the best known compromise (exp 030)
+36. **Optimal constant fee is ~75-80 bps** — constant fee landscape is monotonically increasing up to 75-80 range (exp 031)
+37. **Revenue per order = share × fee is maximized at ~36 bps** but DC at 24 still beats DC at 36 due to routing volume advantage (exp 031)
+38. **Lin+quad spike formula is well-optimized** — pure quad (410), pure linear (485), geometric mean (323) all worse. Fast/slow decay variants within noise (exp 032)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -149,6 +152,15 @@
 - Delayed contrarian (buffer spike by 1 trade) — 345 edge, arb unprotected (exp 030)
 - High default fee + drop after arb — 342 edge, loses retail between arbs (exp 030)
 - Reverse decay (fee increases between arbs) — 343 edge, same problem (exp 030)
+- Constant 28-75 bps: best is ~75-80 bps at 392 edge, NO dynamic mechanism (exp 031)
+- Symmetric spike at base 30-36 with tuned params: 448-481, all worse than DC (exp 031)
+- Same-side constant bump (2-4 bps above base) — within noise (exp 031)
+- Proportional same-side spike (1/8 to 1/2 of opposite) — worse with higher fraction (exp 031)
+- Pure quadratic spike in DC — 410, needs linear term (exp 032)
+- Pure linear spike in DC — 485, needs quadratic (exp 032)
+- Fast decay (2/3) in DC — 477, spike doesn't persist (exp 032)
+- Geometric mean of X/Y trade ratios — 323, Y-only is correct (exp 032)
+- Spike persistence via max(current, prev) — 493, too persistent (exp 032)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

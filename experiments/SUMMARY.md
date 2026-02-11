@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 027 -->
+<!-- Last synced with experiment: 028 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -132,6 +132,11 @@
 - Spike caps on DirContrarian: Cap50→380, Cap100→426, Cap200→462, Cap500→489 — unbounded spikes essential (exp 027)
 - Two-level base floors (sameBase≠oppBase): TL20_30→494, TL24_35→491, TL24_40→488 — all worse than single base=24 (exp 027)
 - Higher opposite-side base floor (30-40 bps) — opposite must decay to 24 to attract retail (exp 027)
+- Constant 36 bps (winner's avg fee) — 362 edge, no spike protection (exp 028)
+- DC at higher bases (30-40): monotonically worse than 24 (exp 028)
+- Size-dependent decay (fast after arb, slow after retail) — breaks arb protection, 472 edge (exp 028)
+- Step-aware switching (spike on first trade, moderate after) — 409 edge (exp 028)
+- Same-side floor at 30-36 bps — within noise or worse (exp 028)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

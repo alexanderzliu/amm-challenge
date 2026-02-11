@@ -1238,5 +1238,42 @@
       "base-fee",
       "rejected"
     ]
+  },
+  {
+    "id": 28,
+    "name": "RetailFeeOptimization",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Higher effective retail fee (36 bps matching winner) with DirContrarian or size-dependent decay could capture more revenue per retail trade",
+    "variables_changed": [
+      "base_fee",
+      "size_dependent_decay",
+      "same_side_floor",
+      "step_awareness"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Constant 36 bps: 362 edge — no spike protection is catastrophic",
+      "DC base30: 493.72@500 — worse than base24 (496.84)",
+      "DC base36: 495.92@100 — monotonically declining with higher base",
+      "Size-dependent decay (arb→fast decay, retail→slow): 471-472 — breaks arb protection",
+      "Same-side floor at 30/36 bps: 496-502@100 → 496.18@500 — within noise",
+      "Step-aware switching (arb phase vs retail phase): 409 — doesn't work",
+      "Both-sides bump (same side to 36): 500@100 — worse",
+      "Symmetric spike at 36 base: 475 — much worse than DC"
+    ],
+    "params": {
+      "n_variants_tested": 12,
+      "winner_avg_fee": "36.1 bps"
+    },
+    "results": {
+      "edge": 496.84,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["base-fee", "retail-optimization", "size-dependent", "rejected"]
   }
 ]

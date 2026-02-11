@@ -1141,5 +1141,62 @@
       "new-best",
       "confirmed"
     ]
+  },
+  {
+    "id": 26,
+    "name": "DirContrarian-Enhancements",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Enhancing DirContrarian with timing detection, asymmetric base/decay, sigma adaptation, spot-price tracking, reserve scaling, directional coefficients, or size-based switching could push past 497.",
+    "variables_changed": [
+      "timing_detection",
+      "asymmetric_base",
+      "asymmetric_decay",
+      "sigma_adaptation",
+      "spike_strength",
+      "spike_formula",
+      "same_side_treatment",
+      "spot_price_tracking"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "DirContrarian at 497 is a robust local optimum — 30+ enhancement variants tested, NONE beat it at 500 sims",
+      "Timing-based arb detection STILL fails with DirContrarian (407-449 edge) — dropping both fees after arb loses contrarian protection",
+      "Asymmetric decay (9/10 opposite, 6/7 same) is within noise (497.04 vs 496.84)",
+      "X-ratio, max-ratio, geometric-mean all equivalent to Y-ratio under CPMM (established fact confirmed)",
+      "Same-side base lower than 24 (18 or 0) does not help — marginal retail gain is offset",
+      "Same-side reset to baseFee (instead of decay) catastrophic (390) — continuity matters",
+      "Stronger spikes (2x) catastrophic (381), weaker (0.5x) bad (463) — current coefficients optimal",
+      "Sticky hold (no same-side decay) catastrophic (389) — same-side must decay to attract retail",
+      "Spot-price change as spike bonus: catastrophic (133) — corrupted as always",
+      "Cumulative per-step trade ratio: no improvement (496.3)",
+      "Consecutive same-direction arb tracking: no improvement (494.1)",
+      "Direction-specific spike coefficients: no improvement (495.5)",
+      "Pure linear spike with contrarian: slightly worse (495.3 vs 496.8)",
+      "Size-based contrarian (large=contrarian, small=symmetric): worse (498.5@100→?)",
+      "Large-only contrarian (skip small trades): slightly worse (495.2)",
+      "Cubic spike with contrarian: catastrophic (403)",
+      "Floor spike at 30bps (above vanilla): no improvement (496.6)",
+      "Reserve-ratio scaling: catastrophic (194)"
+    ],
+    "params": {
+      "n_variants_tested": "30+",
+      "best_enhancement": "asymmetric_decay at 497.04 (within noise)"
+    },
+    "results": {
+      "edge": 496.84,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": [
+      "enhancement",
+      "timing",
+      "asymmetric",
+      "spot-price",
+      "rejected"
+    ]
   }
 ]

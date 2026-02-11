@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 025 -->
+<!-- Last synced with experiment: 026 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -36,6 +36,7 @@
 26. **Contrarian spike is strictly better than same-direction or symmetric** — spike opposite direction: 497, spike same: 302, symmetric: 482 (exp 025)
 27. **DirContrarian prefers stronger linear (5/4), weaker quad (15), slower decay (8/9)** than symmetric baseline (7/8, 27, 6/7) (exp 025)
 28. **Any same-direction spike component hurts** — hybrid same=10%: 496, same=25%: 495, same=50%: 491. Pure contrarian optimal. (exp 025)
+29. **DirContrarian at ~497 is a robust local optimum** — 30+ enhancement variants tested (timing, asymmetric decay/base, sigma adaptation, spot tracking, reserve scaling, size switching, direction-specific coefficients), NONE beat it at 500 sims (exp 026)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -113,6 +114,19 @@
 - Two-phase temporal strategy — no improvement (exp 025)
 - Reserve-ratio fee scaling — catastrophic (80 edge, exp 025)
 - Hybrid contrarian+same spike — any same-direction component hurts (exp 025)
+- DirContrarian + timing detection — dropping both fees after arb loses contrarian protection (407-449, exp 026)
+- DirContrarian + stronger/weaker spikes — 2x spikes (381), 0.5x (463), pure linear (495) all worse (exp 026)
+- DirContrarian + same-side reset to base — continuity matters, catastrophic (390, exp 026)
+- DirContrarian + sticky hold (no same-side decay) — fee gets stuck high (389, exp 026)
+- DirContrarian + spot-price change bonus — corrupted signal (133, exp 026)
+- DirContrarian + reserve-ratio scaling — catastrophic (194, exp 026)
+- DirContrarian + cumulative per-step trade ratio — no improvement (496.3, exp 026)
+- DirContrarian + consecutive arb direction tracking — no improvement (494, exp 026)
+- DirContrarian + direction-specific spike coefficients — no improvement (495.5, exp 026)
+- DirContrarian + asymmetric base (bid≠ask base) — within noise (exp 026)
+- DirContrarian + asymmetric decay rates — within noise (497.04, exp 026)
+- DirContrarian + ultra-low same-side base (18 or 0 bps) — no improvement (exp 026)
+- DirContrarian + size-based contrarian/symmetric switching — worse (exp 026)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)
@@ -123,14 +137,14 @@
 - Simple base raise doesn't work — must achieve this through different mechanism
 
 ## Next Experiments
-DirContrarian broke the 482 ceiling to 497. To reach 525+:
+DirContrarian at 497 is robust. All single-variable enhancements exhausted. To reach 525+:
 
-1. **Combine DirContrarian with timing detection**: After arb detection (first large trade of step), drop BOTH fees to base for retail capture. Set high contrarian fee at end of step for next arb.
-2. **Asymmetric spike coefficients by direction**: isBuy spike might benefit from different lin/quad than isSell spike.
-3. **Adaptive contrarian**: Use trade-size EMA to adjust the contrarian spike strength. High vol → stronger opposite spike.
-4. **Multi-slot state**: Track separate decay state per direction with different decay rates.
-5. **DirContrarian + reserve ratio**: Scale contrarian spike by reserve imbalance (larger spike when reserves are more displaced).
-6. **Per-sim σ estimation**: Estimate σ from arb trade ratios, scale spike accordingly.
+1. **Multi-contrarian**: What if we spike BOTH opposite AND keep a small delayed same-side spike (not immediate, but via a pending buffer that activates 2+ trades later)?
+2. **Phase-adaptive contrarian**: Different contrarian behavior in early vs late simulation stages as reserves/price evolve.
+3. **Retail-focused undercutting**: During "calm" periods (no arb for N steps), switch to ultra-aggressive retail capture mode (both fees at 20 bps). Switch back to contrarian on arb detection.
+4. **Exploit order-within-step**: Router recalculates per retail order. After first retail trade sets contrarian, second retail trade sees updated fees. Can we exploit the per-order fee update within a step?
+5. **Completely different mechanism**: Maybe the winner doesn't use spike/decay at all. Try: fee = constant * (1 + accumulated_state_variable).
+6. **Study the edge decomposition**: Instrument the simulation to understand WHERE our edge comes from (per-trade breakdown: arb loss, retail income by direction).
 
 ## Key Context
 - Vanilla normalizer: fixed 30 bps, scores ~250-350 edge

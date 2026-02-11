@@ -9,8 +9,8 @@ contract Strategy is AMMStrategyBase {
     // slots[1] = ask fee (used when AMM sells X)
 
     // DirContrarian: After trade in direction D, spike OPPOSITE direction only.
-    // Same direction decays. This captures more retail (50% sees low fee)
-    // while providing 50% arb protection (random direction under GBM).
+    // Same direction decays. Router uses bid_fee/ask_fee separately for
+    // sell/buy orders, so half of retail always sees the low (decayed) fee.
 
     function afterInitialize(uint256, uint256)
         external override returns (uint256, uint256)

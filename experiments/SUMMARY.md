@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 029 -->
+<!-- Last synced with experiment: 030 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -42,6 +42,7 @@
 32. **DC base monotonically optimal at 24** — full scan 20-40 bps shows edge declining steadily above 24 (exp 029)
 33. **Fee-level routing advantage is negligible (0.015%)** — k-preservation from spike protection is what drives our ~57% retail share, not fee undercutting (exp 029)
 34. **Same-side decay memory is critical** — resetting same side to base each trade → 390 edge; setting same=30 (match vanilla) → 403 edge (exp 029)
+35. **All alternative fee paradigms fail** — oscillating, predictive, accumulator, delayed, high-default, reverse-decay all worse than DirContrarian. Fee must be simultaneously high for arb and low for retail; DC's bid/ask split is the best known compromise (exp 030)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -142,6 +143,12 @@
 - Same-side floor at 30-36 bps — within noise or worse (exp 028)
 - Same-side always 30 bps (match vanilla) — catastrophic (403), our advantage IS lower fee (exp 029)
 - Reset same-side to base each trade (no memory) — catastrophic (390) (exp 029)
+- Oscillating fee (toggle spike/no-spike) — 430 edge, loses arb protection half the time (exp 030)
+- Inverse prediction (low after arb) — 346 edge, no protection for next arb (exp 030)
+- EMA threat accumulator — 301 edge, inflates fees (exp 030)
+- Delayed contrarian (buffer spike by 1 trade) — 345 edge, arb unprotected (exp 030)
+- High default fee + drop after arb — 342 edge, loses retail between arbs (exp 030)
+- Reverse decay (fee increases between arbs) — 343 edge, same problem (exp 030)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)

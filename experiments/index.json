@@ -1306,5 +1306,39 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["base-fee", "k-preservation", "routing", "rejected"]
+  },
+  {
+    "id": 30,
+    "name": "NewParadigmSearch",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "A fundamentally different fee mechanism (oscillating, predictive, accumulator, delayed, reverse-decay) could break the DirContrarian local optimum",
+    "variables_changed": [
+      "fee_mechanism"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "Oscillating fee (toggle spike/no-spike): 430 — loses arb protection half the time",
+      "Inverse prediction (low after arb, spike after retail): 346 — no arb protection for next step",
+      "Accumulator (EMA threat level): 301 — fees stay elevated, lose retail",
+      "Delayed contrarian (buffer spike for next trade): 345 — next step arb faces unprotected fee",
+      "High default + drop after arb: 342 — loses all retail between arbs",
+      "Reverse decay (increase between arbs): 343 — same problem",
+      "Size-weighted decay (faster after arb, slower after retail): 494 — within noise",
+      "Dual spike (10% on same side): 502@100 — hybrid already tested, no help",
+      "Same-side micro boost (26 bps floor): 503@100 — marginal, not significant"
+    ],
+    "params": {
+      "n_paradigms_tested": 10
+    },
+    "results": {
+      "edge": 496.84,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["paradigm-search", "oscillating", "predictive", "accumulator", "delayed", "rejected"]
   }
 ]

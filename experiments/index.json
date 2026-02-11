@@ -1275,5 +1275,36 @@
     "sim_config": "baseline_default",
     "git_hash": null,
     "tags": ["base-fee", "retail-optimization", "size-dependent", "rejected"]
+  },
+  {
+    "id": 29,
+    "name": "KPreservationBaseScan",
+    "parent_id": 25,
+    "date": "2026-02-11",
+    "hypothesis": "Routing advantage comes from k-preservation (not fee level). Higher base might preserve k better despite slightly less retail routing from fee difference.",
+    "variables_changed": [
+      "base_fee_scan"
+    ],
+    "verdict": "rejected",
+    "insights": [
+      "DC base scan at 100 sims: 20→502.8, 22→503.2, 24→502.9, 26→502.3, 28→501.3, 30→500.0, 32→498.7, 34→497.3, 36→495.9, 40→492.9",
+      "Edge MONOTONICALLY DECLINES with higher base — no hidden optimum above 24",
+      "Symmetric spike always ~18 points worse than DC at same base (485 vs 503 at base 24)",
+      "DC_match30 (same side always 30 bps): 403 — our advantage IS the lower same-side fee",
+      "DC_noMemSame (always reset same to base): 390 — decay memory on same side is critical",
+      "Fee-level routing advantage at 24 vs 30 bps is only 0.015% — k preservation dominates routing"
+    ],
+    "params": {
+      "bases_tested": [20, 22, 24, 26, 28, 30, 32, 34, 36, 40]
+    },
+    "results": {
+      "edge": 496.84,
+      "win_rate": null,
+      "n_simulations": 500,
+      "retail_volume_share": null
+    },
+    "sim_config": "baseline_default",
+    "git_hash": null,
+    "tags": ["base-fee", "k-preservation", "routing", "rejected"]
   }
 ]

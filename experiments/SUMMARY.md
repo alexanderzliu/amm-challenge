@@ -1,5 +1,5 @@
 # AMM Strategy Lab - Status Briefing
-<!-- Last synced with experiment: 028 -->
+<!-- Last synced with experiment: 029 -->
 
 ## Current Best
 - **Strategy**: DirContrarian (exp 025), Edge: ~497 (500 sims)
@@ -39,6 +39,9 @@
 29. **DirContrarian at ~497 is a robust local optimum** — 30+ enhancement variants tested (timing, asymmetric decay/base, sigma adaptation, spot tracking, reserve scaling, size switching, direction-specific coefficients), NONE beat it at 500 sims (exp 026)
 30. **Spike caps hurt even in DirContrarian** — Cap50→380, Cap500→489, confirming unbounded spikes essential (exp 027)
 31. **Two-level base (sameBase≠oppBase) doesn't help** — opposite side must decay to same 24 bps base for retail capture (exp 027)
+32. **DC base monotonically optimal at 24** — full scan 20-40 bps shows edge declining steadily above 24 (exp 029)
+33. **Fee-level routing advantage is negligible (0.015%)** — k-preservation from spike protection is what drives our ~57% retail share, not fee undercutting (exp 029)
+34. **Same-side decay memory is critical** — resetting same side to base each trade → 390 edge; setting same=30 (match vanilla) → 403 edge (exp 029)
 
 ## Critical Architecture Insights (exp 022, 025)
 - **Timing problem**: afterSwap sets fee for NEXT trade. Arb (step N) sees decayed fee from step N-1. After arb, fee spikes. Retail (same step N) sees the spike. This is structurally backwards — arb pays low, retail pays high.
@@ -137,6 +140,8 @@
 - Size-dependent decay (fast after arb, slow after retail) — breaks arb protection, 472 edge (exp 028)
 - Step-aware switching (spike on first trade, moderate after) — 409 edge (exp 028)
 - Same-side floor at 30-36 bps — within noise or worse (exp 028)
+- Same-side always 30 bps (match vanilla) — catastrophic (403), our advantage IS lower fee (exp 029)
+- Reset same-side to base each trade (no memory) — catastrophic (390) (exp 029)
 
 ## Winner Analysis (Target: 525+)
 - **Avg Fee**: 36.1 bps (vs our ~40+ weighted avg)
